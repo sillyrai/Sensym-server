@@ -15,11 +15,13 @@ DB_NAME = "sensym"
 PORT = 3000
 
 # Optional: Set to "production" in a real deployed environment
-NODE_ENV="development" # 'development'
+NODE_ENV="development" # 'deployment'
 ```
 ### Server endpoint structure
 
 site.com/
+- /login
+- /register
 - /device
 	- /devices
 	- /config
@@ -30,7 +32,4 @@ site.com/
 		- /register
 		- /login
 	- /sensors
-- /auth
-	- /login
-	- /register
 - /test

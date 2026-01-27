@@ -1,22 +1,25 @@
 import express from "express";
 import dotenv from "dotenv";
-import path from "path";
 
 // ------------------------- Module import -------------------------
 
-import connectDB from "./Modules/database";
-import { dateLog, requestLog } from "./Modules/logging";
+import connectDB from "./Modules/Database";
+import { dateLog } from "./Modules/Logging";
+import RequestLogger from "./Middleware/RequestLogger";
+import URLNormalize from "./Middleware/URLNormalize";
 
 // ------------------------- Route import -------------------------
 
-import sensor_route from "./Routes/sensor";
+import sensor_route from "./Routes/api/sensors";
+import api_route from "./Routes/api";
+import auth_route from "./Routes/api/auth";
 
 // ------------------------- App setup -------------------------
 
 dotenv.config({path: ".env", quiet: true});
 
 let app = express();
-
+app.use(express.json())
 app.use(express.static("Public"))
 app.set('view engine', 'ejs');
 // app.set('views', path.join(__dirname, 'Views'));
@@ -24,17 +27,19 @@ app.set('views', './Views')
 
 // ------------------------- App middleware -------------------------
 
-app.use((req, res, next) => { req.url = req.url.replace(/\/{2,}/g, '/'); next(); });
+app.use(URLNormalize);
+app.use(RequestLogger);
 
-app.use((req, res, next) => { res.on('finish', () => requestLog(req, res)); next(); });
-
-// ------------------------- App Routes -------------------------
+// ------------------------- App Routes-------------------------
+// Other deeper ones are located (such as /api/auth) in their respective files (i.e /api/index.ts) ????????? ok whatever ghoost 
+// https://imgur.com/a/L5rytts
 
 app.get('/', (req, res) => {
     res.render('index', {});
 })
 
 app.use("/sensors", sensor_route );
+app.use('/api', api_route);
 
 // ------------------------- App start -------------------------
 
@@ -48,9 +53,9 @@ const serverStart = async () => {
     try {
         const { NODE_ENV, PORT } = process.env;
         if (!NODE_ENV || !PORT) { throw new Error('Missing required environment variables'); }
-        // if (NODE_ENV != "development") { console.log('\x1Bc'); } // Cleans terminal if not in development
+        if (NODE_ENV != "development") { console.log('\x1Bc'); } // Cleans terminal if not in development
 
-        // await connectDB(); // Connect to database
+        await connectDB(); // Connect to database
 
         app.listen(PORT, () => {
             console.log(`\x1b[32m█ \x1b[37m[ ${dateLog()} ]\x1b[38;5;27m App starting in \x1b[38;5;99m${NODE_ENV}\x1b[38;5;27m mode on port \x1b[38;5;99m${PORT}\x1b[0m`);

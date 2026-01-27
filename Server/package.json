@@ -3,9 +3,9 @@
 	"scripts": {
 		"start": "npm run dep:sass && npm run dep:server",
 		"dep:sass": "sass Sass:Public/css",
-		"dep:server": "ts-node index.ts",
+		"dep:server": "ts-node server.ts",
 		"dev": "concurrently \"npm run dev:server\" \"npm run dev:sass\"",
-		"dev:server": "nodemon --exec ts-node index.ts",
+		"dev:server": "nodemon --exec ts-node server.ts",
 		"dev:sass": "sass --watch Sass:Public/css"
 	},
 	"dependencies": {
