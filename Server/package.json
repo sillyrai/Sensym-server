@@ -1,19 +1,22 @@
 {
-  "dependencies": {
-    "@types/express": "^5.0.6",
-    "concurrently": "^9.2.1",
-    "dotenv": "^17.2.3",
-    "ejs": "^3.1.10",
-    "express": "^5.2.1",
-    "mongoose": "^9.0.0",
-    "nodemon": "^3.1.11",
-    "sass": "^1.94.2",
-    "ts-node": "^10.9.2"
-  },
-  "scripts": {
-    "start": "ts-node index.ts",
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:sass\"",
-    "dev:server": "nodemon index.ts",
-    "dev:sass": "sass --watch Sass:public/css"
-  }
+	"type": "commonjs",
+	"scripts": {
+		"start": "npm run dep:sass && npm run dep:server",
+		"dep:sass": "sass Sass:Public/css",
+		"dep:server": "ts-node index.ts",
+		"dev": "concurrently \"npm run dev:server\" \"npm run dev:sass\"",
+		"dev:server": "nodemon --exec ts-node index.ts",
+		"dev:sass": "sass --watch Sass:Public/css"
+	},
+	"dependencies": {
+		"@types/express": "^5.0.6",
+		"concurrently": "^9.2.1",
+		"dotenv": "^17.2.3",
+		"ejs": "^3.1.10",
+		"express": "^5.2.1",
+		"mongoose": "^9.0.0",
+		"nodemon": "^3.1.11",
+		"sass": "^1.94.2",
+		"ts-node": "^10.9.2"
+	}
 }
