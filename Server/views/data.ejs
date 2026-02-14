@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Data</title>
+
+    <link rel="stylesheet" href="/css/global.css">
+    <% if (typeof styles !== 'undefined') { %>
+        <% styles.forEach(href => { %>
+        <link rel="stylesheet" href="/css/<%= href %>">
+        <% }) %>
+    <% } %>
+</head>
+<body>
+    <%- include('./Components/navabar') %>
+    
+    <main>
+        <table>
+            <tr>
+                <th>Time</th>
+                <th>Data</th>
+                <th>Type</th>
+                <th>Sensor</th>
+            </tr>
+            <% if (typeof data !== 'undefined') { %>
+                <% data.forEach(entry => { %>
+                <tr>
+                    <td>
+                        <span class="time"><%= entry.createdAt.toLocaleTimeString("lv-LV", timeFormat) %></span>
+                        <span class="date"><%= entry.createdAt.toLocaleDateString("lv-LV", dateFormat) %></span>
+                    </td>
+                    <td><%= entry.value %></td>
+                    <td><%= entry.dataType %></td>
+                    <td><%= entry.name %></td>
+                </tr>
+                <% }) %>
+            <% } %>
+        </table>
+    </main>
+</body>
+</html>

@@ -23,19 +23,6 @@ router.post('/newSensor', IsAuthenticated, async (req, res) => {
 
 // Post sensor data
 
-/*
-SensorDataDocument {
-    token: string;
-    data: any[];
-    createdAt: Date;
-}
-
-Example POST body:
-[
-    {"type": "temperature", "values": [43,23,5,43,45]},
-    {"type": "humidity", "values": [23,45,12,34,23]}
-]
-*/
 router.post('/:sensorToken', async (req,res)=>{
     // check if sensor token even exists
     let sensor = await SensorSchema.findOne({token: req.params.sensorToken});
@@ -46,7 +33,7 @@ router.post('/:sensorToken', async (req,res)=>{
     // process sensor data
     SensorDataSchema.insertOne({
         token: req.params.sensorToken,
-        type: req.body.type,
+        dataType: req.body.type,
         value: req.body.value
     }).then(()=>{
         return res.status(200).json({message: 'Data recorded successfully'});
