@@ -1,3 +1,5 @@
+@use "navbar";
+
 * {
     margin: 0;
     padding: 0;
@@ -20,6 +22,7 @@ body {
 img {
     max-width: 480px;
 }
+
 
 .main {
     display: flex;

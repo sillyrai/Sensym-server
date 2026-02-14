@@ -46,7 +46,8 @@ router.post('/:sensorToken', async (req,res)=>{
     // process sensor data
     SensorDataSchema.insertOne({
         token: req.params.sensorToken,
-        data: req.body
+        type: req.body.type,
+        value: req.body.value
     }).then(()=>{
         return res.status(200).json({message: 'Data recorded successfully'});
     }).catch((err)=>{

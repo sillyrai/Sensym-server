@@ -1,0 +1,20 @@
+nav {
+    display: flex;
+    flex-wrap: nowrap;
+
+    width: 100%;
+
+    background-color: #191919;
+}
+nav > a {
+    padding: 4px 8px;
+    
+    color: #eee;
+    font-size: 16px;
+    text-decoration: none;
+
+    &:hover {
+        background-color: cornflowerblue;
+        color: #000;
+    }
+}

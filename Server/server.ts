@@ -3,8 +3,8 @@ import dotenv from "dotenv";
 
 // ------------------------- Module import -------------------------
 
-import connectDB from "./Modules/Database";
-import { dateLog } from "./Modules/Logging";
+import connectDB from "./Modules/database";
+import { dateLog } from "./Modules/logging";
 import RequestLogger from "./Middleware/RequestLogger";
 import URLNormalize from "./Middleware/URLNormalize";
 
@@ -13,10 +13,11 @@ import URLNormalize from "./Middleware/URLNormalize";
 import sensor_route from "./Routes/api/sensors";
 import api_route from "./Routes/api";
 import auth_route from "./Routes/api/auth";
+import analytics_route from "./Routes/analytics";
 
 // ------------------------- App setup -------------------------
 
-dotenv.config({path: ".env", quiet: true});
+dotenv.config();
 
 let app = express();
 app.use(express.json())
@@ -35,27 +36,28 @@ app.use(RequestLogger);
 // https://imgur.com/a/L5rytts
 
 app.get('/', (req, res) => {
-    res.render('index', {});
+    res.render('index', {
+        styles: ["home.css"]
+    });
 })
 
 app.use("/sensors", sensor_route );
+app.use("/analytics", analytics_route );
+
 app.use('/api', api_route);
 
 // ------------------------- App start -------------------------
-
-/*
-app.listen(process.env.PORT, () => {
-    console.log(`Server is running on http://localhost:${process.env.PORT}`);
-})
-*/
 
 const serverStart = async () => {
     try {
         const { NODE_ENV, PORT } = process.env;
         if (!NODE_ENV || !PORT) { throw new Error('Missing required environment variables'); }
-        if (NODE_ENV != "development") { console.log('\x1Bc'); } // Cleans terminal if not in development
 
-        await connectDB(); // Connect to database
+        // Cleans terminal if not in development
+        console.log('\x1Bc'); console.clear()
+
+        // Connect to database
+        await connectDB();
 
         app.listen(PORT, () => {
             console.log(`\x1b[32m█ \x1b[37m[ ${dateLog()} ]\x1b[38;5;27m App starting in \x1b[38;5;99m${NODE_ENV}\x1b[38;5;27m mode on port \x1b[38;5;99m${PORT}\x1b[0m`);

@@ -2,7 +2,8 @@ import mongoose, { Schema } from "mongoose";
 
 const SensorDataSchema = new Schema({
     token: { type: String, required: true, index: true },
-    data: { type: Array, default: [] },
+    type: { type: String, required: true },
+    value: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
 })
 

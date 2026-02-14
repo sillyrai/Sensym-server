@@ -1,5 +1,5 @@
 import { Request,Response } from "express";
-import { requestLog } from "../Modules/Logging";
+import { requestLog } from "../Modules/logging";
 
 export default (req: Request, res: Response, next: Function) => {
     res.on('finish', () => {
