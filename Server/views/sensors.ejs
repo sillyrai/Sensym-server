@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sensors</title>
+
+    <link rel="stylesheet" href="/css/global.css">
+    <% if (typeof styles !== 'undefined') { %>
+        <% styles.forEach(href => { %>
+        <link rel="stylesheet" href="/css/<%= href %>">
+        <% }) %>
+    <% } %>
+</head>
+<body>
+    <%- include('./Components/navabar') %>
+    
+    <main>
+        <table>
+            <tr>
+                <th>Num.</th>
+                <th>Name</th>
+                <th>Id</th>
+                <th>Data type</th>
+                <th>Creation date</th>
+                <th>Token</th>
+                <th></th>
+            </tr>
+            <% if (typeof sensors !== 'undefined') { %>
+                <% sensors.forEach(sensor => { %>
+                <tr>
+                    <td>|-|</td>
+                    <td><%= sensor.name %></td>
+                    <td><%= sensor.id %></td>
+                    <td><% sensor.dataType %></td>
+                    <td>
+                        <span class="time"><%= sensor.createdAt.toLocaleTimeString("lv-LV", timeFormat) %></span>
+                        <span class="date"><%= sensor.createdAt.toLocaleDateString("lv-LV", dateFormat) %></span>
+                    </td>
+                    <td><%= sensor.token %></td>
+                    <td class="edit"><button>.</button></td>
+                </tr>
+                <% }) %>
+            <% } %>
+            <% for (let i = 0; i <= 8; i++) { %>
+            <tr>
+                <td>|-|</td>
+                <td>Null</td>
+                <td>Null</td>
+                <td>Null</td>
+                <td>Null</td>
+                <td>Null</td>
+                <td class="edit"><button>.</button></td>
+            </tr>
+            <% } %>
+        </table>
+    </main>
+</body>
+</html>

@@ -7,13 +7,13 @@
     <title>Analytics</title>
 
     <link rel="stylesheet" href="/css/global.css">
-    <% if (styles && styles.length) { %>
+    <% if (typeof styles !== 'undefined' && styles.length) { %>
         <% styles.forEach(href => { %>
         <link rel="stylesheet" href="/css/<%= href %>">
         <% }) %>
     <% } %>
 </head>
 <body>
-    <%- include('../Components/navabar') %>
+    <%- include('Components/navabar') %>
 </body>
 </html>

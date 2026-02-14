@@ -10,10 +10,10 @@ import URLNormalize from "./Middleware/URLNormalize";
 
 // ------------------------- Route import -------------------------
 
-import sensor_route from "./Routes/api/sensors";
-import api_route from "./Routes/api";
-import auth_route from "./Routes/api/auth";
+import sensor_route from "./Routes/sensors";
 import analytics_route from "./Routes/analytics";
+import login_route from "./Routes/login";
+import api_route from "./Routes/api";
 
 // ------------------------- App setup -------------------------
 
@@ -43,6 +43,7 @@ app.get('/', (req, res) => {
 
 app.use("/sensors", sensor_route );
 app.use("/analytics", analytics_route );
+app.use("/login", login_route );
 
 app.use('/api', api_route);
 
