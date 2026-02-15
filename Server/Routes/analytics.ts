@@ -56,7 +56,7 @@ router.get("/", async (req, res) => {
     }));
 
     res.render('analytics', {
-        styles: ["analytics.css"],
+        styles: ["analytics_page.css"],
         stats: formatted
     });
 })

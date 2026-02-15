@@ -8,7 +8,7 @@ router.get("/", async (req, res) => {
     const data = await SensorSchema.find({}).limit(25);
 
     res.render('sensors', {
-        styles: ["sensors.css"],
+        styles: ["sensor_page.css"],
         sensors: data,
         timeFormat: { hour: "numeric", minute: "numeric" },
         dateFormat: { year: "numeric", month: "numeric", day: "numeric" }

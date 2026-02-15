@@ -32,7 +32,7 @@ router.get("/", async (req, res) => {
     ]);
 
     res.render('data', {
-        styles: ["data.css"],
+        styles: ["data_page.css"],
         data: data,
         timeFormat: { hour: "numeric", minute: "numeric", second: "numeric" },
         dateFormat: { year: "numeric", month: "numeric", day: "numeric" }
