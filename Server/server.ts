@@ -17,8 +17,6 @@ import login_route from "./Routes/login";
 
 import api_route from "./Routes/api";
 
-import test_route from "./Routes/test";
-
 // ------------------------- App setup -------------------------
 
 dotenv.config();
@@ -51,8 +49,6 @@ app.use("/analytics", analytics_route );
 app.use("/login", login_route );
 
 app.use('/api', api_route);
-
-app.use('/test', test_route);
 
 // ------------------------- App start -------------------------
 

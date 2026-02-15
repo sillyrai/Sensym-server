@@ -1,9 +1,6 @@
-import { Router } from "express";
 import os from "os";
 
-import SensorSchema from "../Models/SensorSchema";
-
-function getLocalIP() {
+export default function getLocalIP() {
     const interfaces = os.networkInterfaces();
 
     for (const name of Object.keys(interfaces)) {
@@ -18,15 +15,3 @@ function getLocalIP() {
     }
     return "Unable to determine IP";
 }
-
-const router = Router();
-
-router.get("/", (req, res) => {
-    const ip = getLocalIP();
-    res.send(`
-        <h1>Server Local IP</h1>
-        <p>${ip}</p>
-    `);
-});
-
-export default router;
