@@ -19,44 +19,6 @@
     <%- include('Components/navabar') %>
 
         <main>
-            <% stats.forEach(sensor => {
-                const end = Date.now();
-                const start = end - (30 * 60 * 1000); // last 30 minutes
-                const width = 1800;
-                const height = 200;
-
-                // Horizontal grid lines
-                const hLines = [50, 100, 150];
-
-
-                // Vertical lines every 5 minutes
-                const fiveMin = 5 * 60 * 1000;
-                const vLines = [];
-                for(let t = start; t <= end; t += fiveMin) {
-                    vLines.push(((t - start) / (end - start)) * width);
-                }
-
-                // Compute Y scaling
-                const values = sensor.data.map(d => d.value);
-                const min = Math.min(...values);
-                const max = Math.max(...values);
-                const range = max - min || 1;
-                
-
-                // Build data points and path
-                let pathD = "";
-                const points = sensor.data.map((d, i) => {
-                    const timestamp = new Date(d.time).getTime();
-                    const x = ((timestamp - start) / (end - start)) * width;
-                    const y = height - ((d.value - min) / range) * height;
-
-                    if(i === 0) pathD += `M${x} ${y}`;
-                    else pathD += ` L${x} ${y}`;
-
-                    return { x, y };
-                });
-            %>
-
             <div class="section">
                 <h3><%= sensor.sensorName %></h3>
                 <p><%= sensor.dataType %></p>
