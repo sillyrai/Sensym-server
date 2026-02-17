@@ -3,7 +3,7 @@ import { dateLog } from "./logging";
 
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config({quiet: true});
 
 const DB_URL = process.env.DB_URL;
 
