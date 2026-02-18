@@ -53,4 +53,18 @@ router.delete('/:sensorToken', IsAuthenticated, async (req, res) => {
     return res.status(200).json({ message: 'Sensor deleted successfully' });
 });
 
+router.post('/:sensorToken/heartbeat', async (req, res) => {
+    let sensorToken = req.params.sensorToken;
+    if(!sensorToken) {
+        return res.status(400).json({ message: 'Sensor token is required' });
+    }
+    
+    let sensor = await SensorSchema.findOne({ token: sensorToken });
+    if(!sensor) {
+        return res.status(404).json({ message: 'Sensor not found' });
+    }
+    
+    // TODO: Unsure how to proceed from here, Ghoosts todo list wasnt very clear on this part.
+});
+
 export default router;

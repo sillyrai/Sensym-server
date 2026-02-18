@@ -14,12 +14,12 @@ import sensor_route from "./Routes/sensors";
 import data_route from "./Routes/data";
 import analytics_route from "./Routes/analytics";
 import login_route from "./Routes/login";
-
 import api_route from "./Routes/api";
+import root_route from "./Routes/root";
 
 // ------------------------- App setup -------------------------
 
-dotenv.config();
+dotenv.config({quiet: true});
 
 let app = express();
 app.use(express.json())
@@ -47,8 +47,8 @@ app.use("/sensors", sensor_route );
 app.use("/data", data_route );
 app.use("/analytics", analytics_route );
 app.use("/login", login_route );
-
 app.use('/api', api_route);
+app.use('/', root_route);
 
 // ------------------------- App start -------------------------
 
