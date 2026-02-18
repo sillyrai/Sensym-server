@@ -141,7 +141,7 @@ function lineGrap(config:lineGrapthModel) {
     const valuesX = config.data.map(d => d.value);
     const minX = Math.min(...valuesX);
     const maxX = Math.max(...valuesX);
-    const rangeX = Math.floor(maxX - minX) + 2 || 1;
+    const rangeX = Math.floor(maxX - minX) || 1;
 
     const nameX = "time";
     const namey = "value";
