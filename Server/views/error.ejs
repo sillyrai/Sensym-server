@@ -3,9 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Erorr</title>
+
+    <title>Error</title>
+
+    <link rel="stylesheet" href="/css/global.css">
+    <% if (typeof styles !== 'undefined' && styles.length) { %>
+        <% styles.forEach(href => { %>
+        <link rel="stylesheet" href="/css/<%= href %>">
+        <% }) %>
+    <% } %>
 </head>
 <body>
-    
+    <div class="slash-bar"></div>
+    <div class="main">
+        <div class="info">
+            <h1>ERROR_</h1>
+            <h2>Type<span class="type"><%= type %></span></h2>
+            <p class="msg"><%= message %></p>
+            <a href="/"><img class="home" src="/graphics/house.svg"></a>
+        </div>
+        <div class="alerts">
+            <img class="alert" src="/graphics/alert.svg">
+        </div>
+    </div>
+    <div class="slash-bar"></div>
 </body>
 </html>

@@ -1,6 +1,6 @@
 import { Request,Response } from "express";
-import AuthTokenSchema from "../Models/AuthenticationTokenSchema_Schema";
-import UserSchema from "../Models/User_Schema";
+import AuthTokenSchema from "../MongoDB models/AuthenticationTokenSchema_Schema";
+import UserSchema from "../MongoDB models/User_Schema";
 
 export default async (req: Request, res: Response, next: Function) => {
     let authHeader = req.headers['authorization'] || req.query.authToken;

@@ -4,6 +4,8 @@ body {
     justify-content: center;
     align-items: center;
 
+    gap: 16px;
+
     background: radial-gradient(green 2px, transparent 1px) repeat, #101210;
     background-size: 4em 4em;
 
@@ -12,4 +14,39 @@ body {
 } @keyframes slide {
     0% { background-position: 0 0; }
     100% { background-position: 16em 16em; }
+}
+
+.infobox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    max-width: 560px;
+    width: 100%;
+    min-height: 76px;
+
+    padding: 12px;
+
+    padding: 8px 16px;
+
+    backdrop-filter: blur(8px);
+    border-radius: 4px;
+
+    color: #eee;
+    font-size: 18px;
+}
+.infobox.info {
+    position: relative;
+    box-shadow: 0 0 16px -2px #8caaee inset;
+    color: #8caaee;
+}
+.infobox.warning {
+    position: relative;
+    box-shadow: 0 0 16px -2px #e5c890 inset;
+    color: #e5c890;
+}
+.infobox.error {
+    position: relative;
+    box-shadow: 0 0 16px -2px #e78284 inset;
+    color: #e78284;
 }

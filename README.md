@@ -10,8 +10,9 @@
 DB_URL = "mongodb://<USER>:<PASS>@<HOST+PORT>/<DATABASE>?authSource=<DATABASE>"
 
 PORT = 3000
+NODE_ENV = "development" # 'deployment'
 
-NODE_ENV="development" # 'deployment'
+JWT_SECRET = "<secret_string>"
 ```
 
 ### Server endpoint structure

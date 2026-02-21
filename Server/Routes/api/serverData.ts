@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import serverIP from "../../Modules/serverIP";
+import serverIP from "../../Lib/serverIP";
 
 const router = Router();
 
