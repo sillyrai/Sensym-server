@@ -1,0 +1,15 @@
+@use "credential_form";
+
+body {
+    justify-content: center;
+    align-items: center;
+
+    background: radial-gradient(green 2px, transparent 1px) repeat, #101210;
+    background-size: 4em 4em;
+
+    animation: slide 8s linear infinite;
+
+} @keyframes slide {
+    0% { background-position: 0 0; }
+    100% { background-position: 16em 16em; }
+}

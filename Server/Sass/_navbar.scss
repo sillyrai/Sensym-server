@@ -6,7 +6,10 @@ nav {
 
     background-color: #191919;
 }
+
 nav > a {
+    display: flex;
+    justify-content: center;
     padding: 4px 8px;
     
     color: #eee;
@@ -17,4 +20,24 @@ nav > a {
         background-color: cornflowerblue;
         color: #000;
     }
+}
+
+nav > a.sensym-button {
+    text-transform: uppercase;
+}
+
+nav > a.sensym-button:hover nav > a.sensym-button::before {
+    filter: drop-shadow(0 0 5px #000);
+}
+
+nav > a.sensym-button::before {
+    display: inline-flex;
+    content: url("/assets/logo.png");
+
+    margin-right: 4px;
+
+    aspect-ratio: 1;
+    height: 1.2em;
+
+    filter: drop-shadow(0 0 5px #000);
 }

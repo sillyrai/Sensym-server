@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>Sensym Login</title>
 
     <link rel="stylesheet" href="/css/global.css">
@@ -16,10 +17,15 @@
     <form class="credential-form login" method="post">
         <h2 class="title">Login</h2>
 
-        <input type="text" placeholder="username" name="user">
-        <input type="password" placeholder="password" name="pass">
+        <div class="form-inputs">
+            <input class="username-input" type="text" placeholder="username" name="user">
+            <input class="password-input" type="password" placeholder="password" name="pass">
+        </div>
 
-        <p class="birka">Sensym</p>
+        <div class="form-bottom">
+            <a class="other-auth-redirect" href="/register">Register</a>
+            <p class="birka">Sensym</p>
+        </div>
 
         <input type="hidden" name="csrf_token" value="">
     </form>
