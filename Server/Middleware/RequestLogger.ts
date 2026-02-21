@@ -3,8 +3,7 @@ import { requestLog } from "../Modules/logging";
 
 export default (req: Request, res: Response, next: Function) => {
     res.on('finish', () => {
-            requestLog(req, res)
-        
+        requestLog(req, res) 
     });
     next();
 }

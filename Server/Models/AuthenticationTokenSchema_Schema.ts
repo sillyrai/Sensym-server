@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import UserSchema from "./UserSchema";
+import UserSchema from "./User_Schema";
 
 const AuthTokenSchema = new Schema({
     token: { type: String, required: true, unique: true, index: true },

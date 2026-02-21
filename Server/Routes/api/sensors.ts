@@ -1,8 +1,8 @@
 import { Router } from "express";
-import IsAuthenticated from "../../Middleware/IsAuthenticated";
+import IsAuthenticated from "../../Middleware/API_Auth";
 import TextStuff from "../../Modules/TextStuff";
-import SensorSchema from "../../Models/SensorSchema";
-import SensorDataSchema from "../../Models/SensorDataSchema";
+import SensorSchema from "../../Models/Sensor_Schema";
+import SensorDataSchema from "../../Models/SensorData_Schema";
 let router = Router();
 
 // Create a new sensor internally

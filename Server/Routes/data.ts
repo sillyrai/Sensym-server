@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import SensorDataSchema from "../Models/SensorDataSchema";
+import SensorDataSchema from "../Models/SensorData_Schema";
 
 const router = Router();
 
@@ -28,11 +28,14 @@ router.get("/", async (req, res) => {
         },
         {
             $sort: { createdAt: -1 }     // earliest first
+        },
+        {
+            $limit: 100                  // limit results to 100 records
         }
     ]);
 
     res.render('data', {
-        styles: ["data_page.css"],
+        styles: ["data_table.css"],
         data: data,
         timeFormat: { hour: "numeric", minute: "numeric", second: "numeric" },
         dateFormat: { year: "numeric", month: "numeric", day: "numeric" }

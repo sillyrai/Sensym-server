@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
-import SensorDataSchema from "../Models/SensorDataSchema";
-import SensorSchema from "../Models/SensorSchema";
+import SensorDataSchema from "../Models/SensorData_Schema";
+import SensorSchema from "../Models/Sensor_Schema";
 
 // Types
 

@@ -1,8 +1,10 @@
 import {Router} from 'express';
+
 import text from '../../Modules/TextStuff';
-import UserSchema from '../../Models/UserSchema';
-import AuthTokenSchema from '../../Models/AuthenticationTokenSchema';
-import IsAuthenticated from '../../Middleware/IsAuthenticated';
+import UserSchema from '../../Models/User_Schema';
+import AuthTokenSchema from '../../Models/AuthenticationTokenSchema_Schema';
+import IsAuthenticated from '../../Middleware/API_Auth';
+
 const router = Router();
 
 router.post('/register', async (req, res) => {
@@ -115,6 +117,9 @@ router.delete('/delete-account', IsAuthenticated, async (req, res) => {
 // Yes we technically could've done the following end points in 
 // One big post request or whatever
 // But our grade depends on how much lines of code we have 💀💀💀 so we're doing it the inefficient way
+
+// This guy....
+// Fine, fine, whatever
 
 router.patch('/change-username', IsAuthenticated, async (req, res) => {
     let body = req.body || {};
