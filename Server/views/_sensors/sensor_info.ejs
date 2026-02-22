@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sensor</title>
+
+    <link rel="stylesheet" href="/css/global.css">
+    <% if (typeof styles !== 'undefined') { %>
+        <% styles.forEach(href => { %>
+        <link rel="stylesheet" href="/css/<%= href %>">
+        <% }) %>
+    <% } %>
+</head>
+<body>
+    <%- include('../Components/navabar') %>
+    
+    <main>
+        <div class="site-grid">
+            <div class="info-box">
+                <div>
+                    <p class="label">Name</p>
+                    <p class="name"><%= sensor.name %></p>
+                </div>
+                <div>
+                    <p class="label">Type</p>
+                    <p class="type"><%= sensor.type || "Not specified" %></p>
+                </div>
+                <div>
+                    <p class="label">ID</p>
+                    <p class="id"><%= sensor._id %></p>
+                </div>
+                <div>
+                    <p class="label">Created at</p>
+                    <p>
+                        <span class="created-at-date"><%= sensor.createdAt.toLocaleDateString("lv-LV", dateFormat) %></span>
+                        <span class="created-at-time"><%= sensor.createdAt.toLocaleTimeString("lv-LV", timeFormat) %></span>
+                    </p>
+                </div>
+                <div>
+                    <p class="label">Token</p>
+                    <p class="token"><%= sensor.token %></p>
+                </div>
+            </div>
+
+            <div class="graph-box">
+                
+            </div>
+
+            <div class="data-box">
+                <div class="table-holder">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Data</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <% if (typeof data !== 'undefined') { %>
+                            <% data.forEach(entry => { %>
+                            <tr>
+                                <td>
+                                    <span class="date"><%= entry.createdAt.toLocaleDateString("lv-LV", dataDateFormat) %></span>
+                                    -
+                                    <span class="time"><%= entry.createdAt.toLocaleTimeString("lv-LV", dataTimeFormat) %></span>
+                                </td>
+                                <td><%= entry.value %></td>
+                                <td><%= entry.dataType %></td>
+                            </tr>
+                            <% }) %>
+                        <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

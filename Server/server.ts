@@ -5,19 +5,20 @@ import cookieParser from "cookie-parser";
 // ------------------------- Module import -------------------------
 
 import connectDB from "./Lib/database";
-import { dateLog } from "./Lib/logging";
-import auth from "./Middleware/FrontEnd_Auth";
-import RequestLogger from "./Middleware/RequestLogger";
-import URLNormalize from "./Middleware/URLNormalize";
+import { dateLog } from "./Lib/logging_utils";
+import auth from "./Lib/frontend_auth";
+import RequestLogger from "./Lib/request_logging";
+import URLNormalize from "./Lib/URLNormalize";
 
 // ------------------------- Route import -------------------------
 
 import public_route from "./Routes/public";
 
 import sensor_route from "./Routes/sensors";
-import data_route from "./Routes/data";
 import analytics_route from "./Routes/analytics";
 import profile_route from "./Routes/profile";
+
+import admin_route from "./Routes/admin";
 
 import api_route from "./Routes/api";
 
@@ -54,7 +55,6 @@ app.get('/', auth, (req, res) => {
 });
 
 app.use("/sensors", auth, sensor_route );
-app.use("/data", auth, data_route );
 app.use("/analytics", auth, analytics_route );
 app.use("/profile", auth, profile_route );
 

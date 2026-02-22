@@ -1,8 +1,8 @@
 import { Router } from "express";
-import IsAuthenticated from "../../Middleware/API_Auth";
+import IsAuthenticated from "../../Lib/backend_auth";
 import TextStuff from "../../Lib/TextStuff";
-import SensorSchema from "../../MongoDB models/Sensor_Schema";
-import SensorDataSchema from "../../MongoDB models/SensorData_Schema";
+import SensorSchema from "../../Lib/mongoDB_models/Sensor_Schema";
+import SensorDataSchema from "../../Lib/mongoDB_models/SensorData_Schema";
 let router = Router();
 
 // Create a new sensor internally

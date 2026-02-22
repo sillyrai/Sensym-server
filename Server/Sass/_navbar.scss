@@ -10,14 +10,17 @@ nav {
 nav > a {
     display: flex;
     justify-content: center;
-    padding: 4px 8px;
+    align-items: center;
+    
+    padding: 6px 8px;
     
     color: #eee;
     font-size: 16px;
     text-decoration: none;
+    user-select: none;
 
     &:hover {
-        background-color: cornflowerblue;
+        background-color: #2ea150;
         color: #000;
     }
 }
@@ -25,25 +28,47 @@ nav > a {
 nav > a.sensym-button {
     text-transform: uppercase;
 }
-
-nav > a.sensym-button:hover nav > a.sensym-button::before {
-    filter: drop-shadow(0 0 5px #000);
+nav > a.sensym-button:hover::before {
+    border-color: transparent;
 }
-
 nav > a.sensym-button::before {
     display: inline-flex;
     content: url("/assets/logo.png");
 
     margin-right: 4px;
+    padding: 2px;
 
     aspect-ratio: 1;
     height: 1.2em;
 
-    filter: drop-shadow(0 0 5px #000);
+    background-color: #111;
+    border: 1px solid #2ea150;
+    border-radius: 1em;
 }
 
-nav > a.profile-button::before {
-    content: "O";
-}
+
 
 nav .spacer { flex: 1; }
+
+
+
+nav > a.profile-button {
+    text-transform: capitalize;
+
+    padding: 0 8px;
+    gap: 8px;
+
+    &::before {
+        content: "󰀄";
+        
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        min-width: fit-content;
+        height: 100%;
+
+        font-family: MapleMono;
+        font-size: 1.5em;
+    }
+}

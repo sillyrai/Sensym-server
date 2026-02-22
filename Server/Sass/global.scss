@@ -1,3 +1,4 @@
+@use "fonts";
 @use "navbar";
 
 * {
@@ -14,14 +15,9 @@ body {
     height: 100vh;
 
     background-color: #222;
-    background-size: 100% 100%;
     
     color: #eee;
     font-family: Arial, Helvetica, sans-serif;
+
+    overflow: auto;
 }
-
-img {
-    max-width: 480px;
-}
-
-

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Sensym Login</title>
+
+    <link rel="stylesheet" href="/css/global.css">
+    <% if (typeof styles !== 'undefined') { %>
+        <% styles.forEach(href => { %>
+        <link rel="stylesheet" href="/css/<%= href %>">
+        <% }) %>
+    <% } %>
+</head>
+<body>
+    <form class="credential-form login" action="/login" method="post">
+        <h2 class="title">Login</h2>
+
+        <div class="form-inputs">
+            <input class="username-input" type="text" placeholder="username" name="user">
+            <input class="password-input" type="password" placeholder="password" name="pass">
+
+            <input class="submit-input" type="submit" value="Log In">
+        </div>
+
+        <div class="form-bottom">
+            <a class="other-auth-redirect" href="/register">Register</a>
+            <p class="birka">Sensym</p>
+        </div>
+
+        <input type="hidden" name="csrf_token" value="">
+    </form>
+
+    <% if (typeof message !== 'undefined') { 
+        if (message.type == "error") { %>
+            <p class="infobox error"><%= message.text %></p>
+        <% } 
+        if (message.type == "warning") {%>
+            <p class="infobox warning"><%= message.text %></p>
+        <% } 
+        if (message.type == "info") {%>
+            <p class="infobox info"><%= message.text %></p>
+        <% }
+    } %>
+</body>
+</html>

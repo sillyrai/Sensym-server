@@ -1,8 +1,7 @@
 import { createHash } from 'crypto';
 
 function sha256(input: string): string {
-    let salt = "meeoww :3"; // (incase anyone uses this, please change the salt to your own unique value)
-    return createHash('sha256').update(input + salt).digest('hex');
+    return createHash('sha256').update(input + process.env.SALT).digest('hex');
 }
 
 function rndStr(length: number): string {
@@ -14,4 +13,4 @@ function rndStr(length: number): string {
     return result;
 }
 
-export default {sha256, rndStr}
+export default { sha256, rndStr }

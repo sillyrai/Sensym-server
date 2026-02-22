@@ -1,0 +1,152 @@
+main {
+    display: flex;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+
+    padding: 16px;
+
+    overflow: hidden;
+}
+
+.site-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    grid-template-rows: 240px 1fr;
+
+    max-width: 1440px;
+    width: 100%;
+    height: 100%;
+
+    gap: 16px;
+}
+
+.info-box, .graph-box, .data-box {
+    display: flex;
+
+    width: 100%;
+    height: 100%;
+
+    padding: 8px;
+
+    background-color: #333;
+    border-radius: 12px;
+}
+
+.info-box {
+    flex-direction: column;
+
+    grid-row: 1 / -1;
+
+    & > div {
+        display: flex;
+        flex-direction: column;
+        
+        width: 100%;
+
+        padding: 8px 0;
+    }
+
+    .label {
+        color: #888;
+        font-size: 14px;
+        user-select: none;
+    }
+
+    .name {
+        font-size: 24px;
+    }
+    .type {
+        // ....
+    }
+    .id {
+        padding: 3px 6px;
+
+        background-color: #222;
+        border-radius: 4px;
+
+        font-family: MapleMono;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    .created-at-time {
+        font-size: 16px;
+    } 
+    .created-at-date {
+        font-size: 20px;
+    }
+    .token {
+        padding: 3px 6px;
+
+        background-color: #222;
+        border-radius: 4px;
+
+        font-family: MapleMono;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+}
+
+.graph-box {
+
+}
+
+.data-box {
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    .table-holder {
+        flex: 1;
+
+        width: 100%;
+
+        padding-right: 4px;
+
+        border: 1px solid #555;
+        border-top: none;
+
+        overflow: auto;
+        scrollbar-width: thin;
+
+        table {
+            table-layout: fixed;
+
+            border-collapse: separate;
+            border-spacing: 0;
+            
+            max-width: 1080px;
+            min-width: min-content;
+            width: 100%;
+
+            thead {
+                th {
+                    position: sticky;
+                    top: 0;
+
+                    padding: 2px 0;
+
+                    background: #222;
+                    border: 1px solid #555;
+                    border-top: 2px solid #555;
+                    z-index: 3;
+                }
+            }
+
+            tbody {
+                tr:nth-child(odd) {
+                    background-color: #292929;
+                }
+                td {
+                    padding: 2px 4px;
+
+                    border: 1px solid #555;
+
+                    text-wrap: nowrap;
+                }
+            }
+        }
+    }
+}

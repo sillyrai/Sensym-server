@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sensors</title>
+
+    <link rel="stylesheet" href="/css/global.css">
+    <% if (typeof styles !== 'undefined') { %>
+        <% styles.forEach(href => { %>
+        <link rel="stylesheet" href="/css/<%= href %>">
+        <% }) %>
+    <% } %>
+</head>
+<body>
+    <%- include('../Components/navabar') %>
+    
+    <main>
+        <div class="filters">
+            <p class="filter-label"></p>
+        </div>
+
+
+        <div class="sensor-list-holder"><div class="sensor-list">
+        <% if (typeof sensors !== 'undefined') { %>
+            <% sensors.forEach(sensor => { %>
+            <a class="sensor" href="/sensors/<%= sensor.id %>">
+                <p class="sensor-name"><%= sensor.name %></p>
+                <p class="sensor-data-type"><span class="type-label">Type</span><%= sensor.dataType || "Not specified" %></p>
+            </a>
+            <% }) %>
+        <% } %>
+        </div></div>
+    </main>
+</body>
+</html>

@@ -1,8 +1,8 @@
 import {Router} from 'express';
 
 import text from '../../Lib/TextStuff';
-import UserSchema from '../../MongoDB models/User_Schema';
-import IsAuthenticated from '../../Middleware/API_Auth';
+import UserSchema from '../../Lib/mongoDB_models/User_Schema';
+import IsAuthenticated from '../../Lib/backend_auth';
 
 const router = Router();
 

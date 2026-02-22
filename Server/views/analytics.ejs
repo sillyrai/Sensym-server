@@ -11,46 +11,16 @@
     <% if (typeof styles !=='undefined' && styles.length) { %>
         <% styles.forEach(href=> { %>
             <link rel="stylesheet" href="/css/<%= href %>">
-            <% }); %>
-                <% } %>
+        <% }); %>
+    <% } %>
 </head>
 
 <body>
     <%- include('Components/navabar') %>
 
-        <main>
-            <div class="section">
-                <h3><%= sensor.sensorName %></h3>
-                <p><%= sensor.dataType %></p>
-                <svg class="chart" id="chart-<%= sensor.sensorID %>"
-                    height="200"
-                    width="100%"
-                    viewBox="0 0 1800 200"
-                    preserveAspectRatio="none"
-                    xmlns="http://www.w3.org/2000/svg">
+    <main>
 
-                    <!-- Horizontal grid lines -->
-                    <% hLines.forEach(y => { %>
-                        <line x1="0" y1="<%= y %>" x2="<%= width %>" y2="<%= y %>" stroke="#ccc" stroke-width="1"/>
-                    <% }); %>
-
-                    <!-- Vertical grid lines every 5 min -->
-                    <% vLines.forEach(x => { %>
-                        <line x1="<%= x %>" y1="0" x2="<%= x %>" y2="<%= height %>" stroke="#eee" stroke-width="2" />
-                    <% }); %>
-
-                    <!-- Data points -->
-                    <% points.forEach(p => { %>
-                        <circle cx="<%= p.x %>" cy="<%= p.y %>" r="3" fill="red" />
-                    <% }); %>
-
-                    <!-- Line connecting points -->
-                    <path d="<%= pathD %>" stroke="red" fill="none" stroke-width="2" />
-                </svg>
-            </div>
-            <% }); %>
-        </main>
+    </main>
 </body>
-<%- include('Scripts/chart', {stats}) %>
-
+<%- include('Scripts/chart') %>
 </html>
