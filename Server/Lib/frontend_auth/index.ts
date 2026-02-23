@@ -19,15 +19,7 @@ export default async (req: Request, res: Response, next: Function) => {
 
         let user = await UserSchema.findOne({ _id: decoded.id });
 
-        if(!user) {
-            return res.status(401).render("login", {
-                styles: ["auth_pages.css"],
-                message: { 
-                    text: "Invalid username and/or password",
-                    type: "info" 
-                }
-            });
-        }
+        if(!user) { return res.redirect('/login'); }
 
         res.locals.userData = {
             user: user.username,

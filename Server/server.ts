@@ -58,10 +58,25 @@ app.use("/sensors", auth, sensor_route );
 app.use("/analytics", auth, analytics_route );
 app.use("/profile", auth, profile_route );
 
-app.use('/api', auth, api_route);
+app.use('/api', api_route);
+
+import User_Schema from "./Lib/mongoDB_models/User_Schema";
+import OneTimeRegistration_Schema from "./Lib/mongoDB_models/OneTimeRegistration_Schema";
+async function handleNoAccounts() { // Handle when there are no accounts in the database (first time running)
+    // Check if there are any accounts in the database
+    const userCount = await User_Schema.countDocuments();
+    if(userCount>0) return;
+
+    // Create a preset registration token for the first account (expires in 7 days)
+    OneTimeRegistration_Schema.insertOne({
+        token: "ADMIN_TOKEN",
+        expiresAt: new Date(Date.now() + 7*24*60*60*1000), // 7 days from now
+        accountType: "ADMIN"
+    })
+    console.log(`\x1b[33m█ \x1b[37m[ ${dateLog()} ]\x1b[33m No accounts found. Created one-time registration token: \x1b[38;5;99mADMIN_TOKEN\x1b[0m`);
+}
 
 // ------------------------- App start -------------------------
-
 const serverStart = async () => {
     try {
         const { NODE_ENV, PORT, JWT_SECRET } = process.env;
@@ -74,6 +89,7 @@ const serverStart = async () => {
         // Connect to database
         await connectDB();
 
+        await handleNoAccounts();
         // Start the server
         app.listen(PORT, () => {
             console.log(`\x1b[32m█ \x1b[37m[ ${dateLog()} ]\x1b[38;5;27m App starting in \x1b[38;5;99m${NODE_ENV}\x1b[38;5;27m mode on port \x1b[38;5;99m${PORT}\x1b[0m`);
@@ -84,3 +100,5 @@ const serverStart = async () => {
         process.exit(1);
     }
 }; serverStart();
+
+

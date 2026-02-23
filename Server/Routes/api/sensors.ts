@@ -35,6 +35,7 @@ router.post('/:sensorToken', async (req,res)=>{
         token: req.params.sensorToken,
         dataType: req.body.type,
         value: req.body.value
+
     }).then(()=>{
         return res.status(200).json({message: 'Data recorded successfully'});
     }).catch((err)=>{
@@ -52,7 +53,7 @@ router.delete('/:sensorToken', IsAuthenticated, async (req, res) => {
     }
     return res.status(200).json({ message: 'Sensor deleted successfully' });
 });
-
+/*
 router.post('/:sensorToken/heartbeat', async (req, res) => {
     let sensorToken = req.params.sensorToken;
     if(!sensorToken) {
@@ -66,5 +67,5 @@ router.post('/:sensorToken/heartbeat', async (req, res) => {
     
     // TODO: Unsure how to proceed from here, Ghoosts todo list wasnt very clear on this part.
 });
-
+*/
 export default router;

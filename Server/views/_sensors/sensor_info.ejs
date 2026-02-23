@@ -85,6 +85,11 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
+    const chartMinuteLenght = 30;
+
+    const tick_color = "#777";
+    const grid_color = "#444";
+
     const temperatureData = <%- JSON.stringify(data) %>;
 
     temperatureData.sort((a, b) =>
@@ -93,41 +98,57 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const chartData = temperatureData.map(item => ({
         x: new Date(item.createdAt),
-        // y: parseFloat(item.value.replace(',', '.'))
         y: Number(item.value)
     })).filter(point => !isNaN(point.y));
+
+    // filter to last 30 minutes
+    const now = new Date();
+    const thirtyMinutesAgo = new Date(now.getTime() - chartMinuteLenght * 60 * 1000);
+    const recentChartData = chartData.filter(point => point.x >= thirtyMinutesAgo && point.x <= now);
 
     const ctx = document.getElementById('sensor_data_line_graph').getContext('2d');
 
     new Chart(ctx, {
         type: 'line',
         data: {
-            datasets: [{
+                datasets: [{
                 label: 'Temperature (°C)',
-                data: chartData,
-                borderColor: 'rgb(255, 0, 0)',
-                backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                data: recentChartData,
+                borderColor: 'rgb(46, 161, 80)',
+                backgroundColor: 'rgba(255, 255, 255, 0)',
                 tension: 0.3,
-                fill: true,
-                pointRadius: 3
+                fill: false,
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHoverRadius: 0
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             parsing: false,
             scales: {
                 x: {
                     type: 'time',
                     time: {
                         unit: 'minute',
+                        stepSize: chartMinuteLenght,
                         displayFormats: {
                             minute: 'HH:mm'
                         },
                         tooltipFormat: 'HH:mm'
                     },
-                    title: {
-                        display: true,
-                        text: 'Time'
+                    min: thirtyMinutesAgo,
+                    max: now,
+
+                    grid: {
+                        color: grid_color,
+                        borderColor: grid_color,
+                        drawTicks: true
+                    },
+                    ticks: {
+                        color: tick_color,
+                        font: { size: 12 }
                     }
                 },
                 y: {
@@ -135,9 +156,24 @@ document.addEventListener('DOMContentLoaded', function () {
                         display: true,
                         text: 'Temperature (°C)'
                     },
-                    beginAtZero: false
+                    beginAtZero: false,
+
+                    grid: {
+                        color: grid_color,
+                        borderColor: grid_color,
+                        drawTicks: true
+                    },
+                    ticks: {
+                        color: tick_color,
+                        font: { size: 12 }
+                    }
                 }
-            }
+            },
+            plugins: {
+                legend: {
+                    display: false  // <-- hide the top legend
+                }
+            },
         }
     });
 });

@@ -89,7 +89,15 @@ main {
 }
 
 .graph-box {
+    display: flex;
+    width: 100%;
+    height: 100%;  /* make the parent take all grid row space */
 
+    canvas {
+        width: 100% !important;
+        height: 100% !important; /* <-- important to fill the parent */
+        display: block;
+    }
 }
 
 .data-box {
