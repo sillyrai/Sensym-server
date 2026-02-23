@@ -45,7 +45,7 @@
             </div>
 
             <div class="graph-box">
-                
+                <canvas id="sensor_data_line_graph"></canvas>
             </div>
 
             <div class="data-box">
@@ -59,8 +59,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                        <% if (typeof data !== 'undefined') { %>
-                            <% data.forEach(entry => { %>
+                        <% if (typeof data !== 'undefined') { data.forEach(entry => { %>
                             <tr>
                                 <td>
                                     <span class="date"><%= entry.createdAt.toLocaleDateString("lv-LV", dataDateFormat) %></span>
@@ -79,4 +78,69 @@
         </div>
     </main>
 </body>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const temperatureData = <%- JSON.stringify(data) %>;
+
+    temperatureData.sort((a, b) =>
+        new Date(a.createdAt) - new Date(b.createdAt)
+    );
+
+    const chartData = temperatureData.map(item => ({
+        x: new Date(item.createdAt),
+        // y: parseFloat(item.value.replace(',', '.'))
+        y: Number(item.value)
+    })).filter(point => !isNaN(point.y));
+
+    const ctx = document.getElementById('sensor_data_line_graph').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Temperature (°C)',
+                data: chartData,
+                borderColor: 'rgb(255, 0, 0)',
+                backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                tension: 0.3,
+                fill: true,
+                pointRadius: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            parsing: false,
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: 'minute',
+                        displayFormats: {
+                            minute: 'HH:mm'
+                        },
+                        tooltipFormat: 'HH:mm'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Time'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Temperature (°C)'
+                    },
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+});
+</script>
+
 </html>

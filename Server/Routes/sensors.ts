@@ -24,7 +24,7 @@ router.get("/:sensor_id", async (req, res) => {
         });
     }
 
-    var data = await SensorDataSchema.find({ token: sensor.token }).limit(50);
+    var data = await SensorDataSchema.find({ token: sensor.token }).sort({ createdAt: -1 }).limit(50);
 
     res.render('_sensors/sensor_info', {
         styles: ["sensor_info_page.css"],
