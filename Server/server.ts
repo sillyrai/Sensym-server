@@ -34,7 +34,7 @@ app.use(cookieParser());
 app.use(express.static("Public"));
 
 app.set('view engine', 'ejs');
-app.set('views', './Views');
+app.set('views', './views');
 
 // ------------------------- App middleware -------------------------
 
