@@ -8,6 +8,6 @@ const router = Router();
 router.use('/profile', profile_route);
 router.use('/sensors', sensors_route);
 router.use('/server', server_info_route);
-router.use('/login', server_ilogin_routenfo_route);
+router.use('/login', login_route);
 
 export default router;
