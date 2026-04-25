@@ -6,7 +6,7 @@ import SensorDataSchema from "../Lib/mongoDB_models/SensorData_Schema";
 const router = Router();
 
 router.get("/", async (req, res) => {
-    const data = await SensorSchema.find({}).limit(25);
+    const data = await SensorSchema.find({}).limit(24);
 
     res.render('_sensors/sensors', {
         styles: ["sensors_page.css"],
