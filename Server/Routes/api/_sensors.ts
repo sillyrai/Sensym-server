@@ -23,14 +23,21 @@ router.post('/newSensor', IsAuthenticated, async (req, res) => {
 
 // Post sensor data
 
-router.post('/:sensorToken', async (req,res)=>{
+interface SensorDataItem {
+    type: string;
+    value: string;
+    name?: string;
+}
+
+router.post('/:sensorToken', async (req, res)=>{
+    const { sensorToken } = req.params;
+
     // check if sensor token even exists
-    let sensor = await SensorSchema.findOne({token: req.params.sensorToken});
-    if(!sensor){
-        return res.status(404).json({message: 'Sensor not found'});
-    }
+    const sensor = await SensorSchema.findOne({ token: sensorToken });
+    if(!sensor){ return res.status(404).json({ message: "Sensor not found" }); }
 
     // process sensor data
+    /* << OLD >> *//*
     SensorDataSchema.insertOne({
         token: req.params.sensorToken,
         dataType: req.body.type,
@@ -41,6 +48,19 @@ router.post('/:sensorToken', async (req,res)=>{
     }).catch((err)=>{
         return res.status(500).json({message: 'Failed to record data', details: err});
     })
+    */
+    await SensorDataSchema.insertOne({
+        token: sensorToken,
+        data: (req.body as SensorDataItem[] || []).map((item:SensorDataItem) => ({
+            type: item.type,
+            value: item.value,
+            ...(item.name && { name: item.name })
+        })),
+    }).then(()=>{
+        return res.status(200).json({ ok: 'data recorded successfully' });
+    }).catch((err)=>{
+        return res.status(500).json({ error: `failure to record data: ${err}` });
+    });
 })
 
 router.delete('/:sensorToken', IsAuthenticated, async (req, res) => {
@@ -53,6 +73,7 @@ router.delete('/:sensorToken', IsAuthenticated, async (req, res) => {
     }
     return res.status(200).json({ message: 'Sensor deleted successfully' });
 });
+
 /*
 router.post('/:sensorToken/heartbeat', async (req, res) => {
     let sensorToken = req.params.sensorToken;
@@ -68,4 +89,5 @@ router.post('/:sensorToken/heartbeat', async (req, res) => {
     // TODO: Unsure how to proceed from here, Ghoosts todo list wasnt very clear on this part.
 });
 */
+
 export default router;

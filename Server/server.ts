@@ -100,5 +100,3 @@ const serverStart = async () => {
         process.exit(1);
     }
 }; serverStart();
-
-
