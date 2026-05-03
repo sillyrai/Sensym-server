@@ -1,3 +1,10 @@
+<%
+    const sensorDataTypeToMesurement = {
+        "temperature": "º C",
+        "humidity": "% RH"
+    }
+%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,38 +49,39 @@
                     <p class="label">Token</p>
                     <p class="token"><%= sensor.token %></p>
                 </div>
+
+                <pre><%= typeof data %></pre>
             </div>
 
             <div class="graph-box">
-                <canvas id="sensor_data_line_graph"></canvas>
+                <% if (data.length > 0) { %><canvas id="sensor_data_line_graph"></canvas><% } else { %><p class="no_data_message">No Data</p><% } %>
             </div>
 
-            <div class="data-box">
-                <div class="table-holder">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>Data</th>
-                                <th>Type</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <% if (typeof data !== 'undefined') { data.forEach(entry => { %>
-                            <tr>
-                                <td>
-                                    <span class="date"><%= entry.createdAt.toLocaleDateString("lv-LV", dataDateFormat) %></span>
-                                    -
-                                    <span class="time"><%= entry.createdAt.toLocaleTimeString("lv-LV", dataTimeFormat) %></span>
-                                </td>
-                                <td><%= entry.value %></td>
-                                <td><%= entry.dataType %></td>
-                            </tr>
+            <div class="data-table-holder"><% if (data.length > 0) { %>
+                <table>
+                    <tbody>
+                    <% let i = 0; data.forEach(entry => { i++; %>
+                        <tr class="index_col">
+                            <td><%= i %></td>
+                            
+                            <td class="date_col">
+                                <%= entry.createdAt.toLocaleDateString("lv-LV", dataDateFormat) %>
+                            </td>
+                            
+                            <td class="time_col">
+                                <%= entry.createdAt.toLocaleTimeString("lv-LV", dataTimeFormat) %>
+                            </td>
+                            
+                            <% entry.data.forEach(item => { %>
+                            <td class="data_col">
+                                <span class="sensor_data_col"><%= item.value %><%= sensorDataTypeToMesurement[item.type] %></span>
+                            </td>
                             <% }) %>
-                        <% } %>
-                        </tbody>
-                    </table>
-                </div>
+                        </tr>
+                    <% }); %>
+                    </tbody>
+                </table>
+                <% } else { %><p class="no_data_message">No Data</p><% } %>
             </div>
         </div>
     </main>
@@ -98,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const chartData = temperatureData.map(item => ({
         x: new Date(item.createdAt),
-        y: Number(item.value)
+        y: Number(item.data[0].value)
     })).filter(point => !isNaN(point.y));
 
     // filter to last 30 minutes
@@ -111,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function () {
     new Chart(ctx, {
         type: 'line',
         data: {
-                datasets: [{
+            datasets: [{
                 label: 'Temperature (°C)',
                 data: recentChartData,
                 borderColor: 'rgb(46, 161, 80)',

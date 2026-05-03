@@ -22,7 +22,7 @@ main {
     gap: 16px;
 }
 
-.info-box, .graph-box, .data-box {
+.info-box, .graph-box, .data-table-holder {
     display: flex;
 
     width: 100%;
@@ -32,7 +32,11 @@ main {
 
     background-color: #333;
     border-radius: 12px;
+
+    overflow: hidden;
 }
+
+
 
 .info-box {
     flex-direction: column;
@@ -46,6 +50,7 @@ main {
         width: 100%;
 
         padding: 8px 0;
+        gap: 2px;
     }
 
     .label {
@@ -58,7 +63,10 @@ main {
         font-size: 24px;
     }
     .type {
-        // ....
+        width: max-content;
+        padding: 2px 4px;
+        border: 1px solid #555;
+        border-radius: 4px;
     }
     .id {
         padding: 3px 6px;
@@ -100,61 +108,77 @@ main {
     }
 }
 
-.data-box {
-    display: flex;
-    flex-direction: column;
-
-    overflow: hidden;
-
-    .table-holder {
-        flex: 1;
-
+.data-table-holder {
+    padding: 0 8px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    
+    table {
         width: 100%;
+        height: max-content;
 
-        padding-right: 4px;
+        border-collapse: separate;
+        border-spacing: 0 8px;
 
-        border: 1px solid #555;
-        border-top: none;
+        overflow-y: auto;
+        scrollbar-width: none;
 
-        overflow: auto;
-        scrollbar-width: thin;
+        tbody {
+            tr {
+                height: max-content;
+                background-color: #444;
+                border-radius: 4px;
 
-        table {
-            table-layout: fixed;
-
-            border-collapse: separate;
-            border-spacing: 0;
-            
-            max-width: 1080px;
-            min-width: min-content;
-            width: 100%;
-
-            thead {
-                th {
-                    position: sticky;
-                    top: 0;
-
-                    padding: 2px 0;
-
-                    background: #222;
-                    border: 1px solid #555;
-                    border-top: 2px solid #555;
-                    z-index: 3;
-                }
-            }
-
-            tbody {
-                tr:nth-child(odd) {
-                    background-color: #292929;
-                }
                 td {
-                    padding: 2px 4px;
+                    padding: 8px;
 
-                    border: 1px solid #555;
+                    // border: 1px solid #555;
+                    border: none;
 
                     text-wrap: nowrap;
                 }
+
+                .index_col {
+                    width: 1%;
+                    white-space: nowrap;
+                } 
+                .date_col {
+                    width: 1%;
+                    white-space: nowrap;
+                }
+                .time_col {
+                    width: 1%;
+                    white-space: nowrap;
+                }
+                .data_col {
+                    text-align: center;
+                }
             }
+            /*
+            tr:nth-child(odd) { 
+                background-color: #393939;
+                &:hover { background-color: #394039; }
+            }
+            tr:nth-child(even) { 
+                background-color: #292929;
+                &:hover { background-color: #293029; }
+            }
+            */
         }
-    }
+    } 
+}
+
+
+.no_data_message {
+    margin: auto;
+    padding: 12px 16px;
+
+    box-shadow: 0 0 16px 8px #a33, 0 0 8px 4px #a33 inset;
+
+    color: #a33;
+    font-size: 22px;
+    font-weight: bold;
+    text-transform: uppercase;
+    
+    transform: rotate(-20deg);
 }

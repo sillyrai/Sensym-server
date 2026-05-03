@@ -14,6 +14,14 @@ router.get("/", async (req, res) => {
     });
 })
 
+//-// This '/add' route MUST BE before '/:sensor_id' <-- IMPORTANT IMPORTANT //-//
+router.get("/add", async (req, res) => {    
+
+    res.render('_sensors/page_add_sensor', {
+        styles: ["page_add_sensor.css"],
+    });
+})
+
 router.get("/:sensor_id", async (req, res) => {
     const sensor_id = req.params.sensor_id;
 
@@ -25,7 +33,7 @@ router.get("/:sensor_id", async (req, res) => {
     }
 
     const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-    var data = await SensorDataSchema.find({ token: sensor.token, createdAt: {$gte: thirtyMinutesAgo}}).sort({ createdAt: -1 });
+    const data = await SensorDataSchema.find({ token: sensor.token, createdAt: {$gte: thirtyMinutesAgo}}).sort({ createdAt: -1 });
 
     res.render('_sensors/sensor_info', {
         styles: ["sensor_info_page.css"],

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sensors</title>
+
+    <link rel="stylesheet" href="/css/global.css">
+    <% if (typeof styles !== 'undefined') { %>
+        <% styles.forEach(href => { %>
+        <link rel="stylesheet" href="/css/<%= href %>">
+        <% }) %>
+    <% } %>
+</head>
+<body>
+    <%- include('../Components/navabar') %>
+    
+    <main>
+        <form class="new_sensor_form" action="/api/newSensor">
+            <p class="form_title">Add a new sensor</p>
+
+            <p class="input_label">Name</p>
+            <input type="text" name="sensor_name" placeholder="..."/>
+
+            <input type="submit" value="Add" />
+        </form>
+    </main>
+</body>
+</html>

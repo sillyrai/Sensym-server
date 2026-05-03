@@ -12,6 +12,34 @@ main {
     overflow: hidden;
 }
 
+.add_sensors_btn {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+
+    width: 48px;
+    aspect-ratio: 1;
+
+    padding: 8px;
+
+    background-color: #111;
+    border-radius: 16px;
+
+    overflow: hidden;
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+        background-color: #171717;
+        box-shadow: 0 0 12px -6px #000;
+        border-radius: 24px;
+    }
+
+    img {
+        width: 100%;
+        object-fit: contain;
+    }
+}
+
 .filters {
     display: flex;
 

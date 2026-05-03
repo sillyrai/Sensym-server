@@ -44,7 +44,9 @@ app.use(RequestLogger);
 // ------------------------- App Routes-------------------------
 // Other deeper ones are located (such as /api/auth) in their respective files (i.e /api/index.ts) ????????? ok whatever ghoost 
 // https://imgur.com/a/L5rytts
-// WTF is this ^^^^ ???? What? -Ghoost
+//
+// WTF is this ^^^^ ???? What? 
+// -Ghoost
 
 app.use('/', public_route);
 

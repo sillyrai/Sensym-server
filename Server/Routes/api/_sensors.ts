@@ -12,6 +12,8 @@ router.post('/newSensor', IsAuthenticated, async (req, res) => {
         return res.status(403).json({ error: 'Insufficient permissions' });
     }
 
+    // Check if req.body contains 'sensor_name'
+
     let deviceToken = TextStuff.rndStr(16);
     let insertRes = await SensorSchema.insertOne({
         token: deviceToken
@@ -19,6 +21,8 @@ router.post('/newSensor', IsAuthenticated, async (req, res) => {
     return res.status(200).json({
         token: deviceToken
     });
+
+    // at the end redirect back to '/sensors/<ID_of_new_sensor>'
 })
 
 // Post sensor data
