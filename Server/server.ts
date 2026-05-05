@@ -16,6 +16,7 @@ import public_route from "./Routes/public";
 
 import sensor_route from "./Routes/sensors";
 import analytics_route from "./Routes/analytics";
+import users_route from "./Routes/users";
 import profile_route from "./Routes/profile";
 
 import admin_route from "./Routes/admin";
@@ -58,6 +59,7 @@ app.get('/', auth, (req, res) => {
 
 app.use("/sensors", auth, sensor_route );
 app.use("/analytics", auth, analytics_route );
+app.use("/users", auth, users_route );
 app.use("/profile", auth, profile_route );
 
 app.use('/api', api_route);
