@@ -19,6 +19,7 @@ router.get("/add", async (req, res) => {
 
     res.render('_sensors/page_add_sensor', {
         styles: ["page_add_sensor.css"],
+        authToken: req.cookies.auth_token || "",
     });
 })
 
