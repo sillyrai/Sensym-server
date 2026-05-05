@@ -24,9 +24,17 @@ router.post('/', async (req, res) => {
 
     // Get user data
     let user = await UserSchema.findOne({ username: username });
-    
+
     // Validate Username
-    if(!user || !bcrypt.compare(password, user.password)) {
+    if (!user) {
+        return res.status(401).json({
+            error: "invalid credentials"
+        });
+    }
+
+    // Compare password (bcrypt.compare returns a Promise)
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
         return res.status(401).json({
             error: "invalid credentials"
         });
