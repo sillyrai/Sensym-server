@@ -21,7 +21,11 @@ router.get("/add", async (req, res) => {
 
     res.render('_sensors/page_add_sensor', {
         styles: ["page_add_sensor.css"],
+<<<<<<< HEAD
         title: "Sensym | Add Sensor"
+=======
+        authToken: req.cookies.auth_token || "",
+>>>>>>> d9c6fab9b3059ed2564fd0db488be8e0b2659165
     });
 })
 

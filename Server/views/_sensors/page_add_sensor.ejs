@@ -5,7 +5,7 @@
     <%- include('../Components/navabar') %>
     
     <main>
-        <form class="new_sensor_form" action="/api/newSensor">
+        <form method="POST" class="new_sensor_form" action="/api/sensors/newSensor?<%= new URLSearchParams({ authToken: authToken || '' }).toString() %>">
             <p class="form_title">Add a new sensor</p>
 
             <p class="input_label">Name</p>
