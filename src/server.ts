@@ -32,10 +32,10 @@ let app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.static("Public"));
+app.use(express.static("src/Public"));
 
 app.set('view engine', 'ejs');
-app.set('views', './views');
+app.set('views', 'src/Views');
 
 // ------------------------- App middleware -------------------------
 

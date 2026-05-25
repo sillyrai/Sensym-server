@@ -2,12 +2,12 @@
 	"type": "commonjs",
 	"scripts": {
 		"start": "npm run dep:sass && npm run dep:server",
-		"dep:sass": "sass Sass:Public/css",
-		"dep:server": "ts-node server.ts",
+		"dep:sass": "sass src/Sass:src/Public/css",
+		"dep:server": "ts-node src/server.ts",
 		
 		"dev": "concurrently \"npm run dev:server\" \"npm run dev:sass\"",
-		"dev:server": "nodemon --exec ts-node server.ts",
-		"dev:sass": "sass --watch Sass:Public/css"
+		"dev:server": "nodemon --exec ts-node src/server.ts",
+		"dev:sass": "sass --watch src/Sass:src/Public/css"
 	},
 	"dependencies": {
 		"@types/bcrypt": "^6.0.0",

@@ -23,7 +23,7 @@ export default async (req: Request, res: Response, next: Function) => {
 
         res.locals.userData = {
             user: user.username,
-            role: user.role
+            role: user.userType
         };
         return next();
     });

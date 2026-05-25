@@ -42,4 +42,4 @@ temp/
 tmp/
 
 # --- Unnecassery stuff ---
-Server/Public/css/*
+src/Public/css/*
