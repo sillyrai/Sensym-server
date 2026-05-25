@@ -15,7 +15,8 @@ router.get('/', (req, res)=>{
     if (auth_token) { return res.redirect('/profile'); }
 
     res.render('_auth/login', {
-        styles: ["auth_pages.css"]
+        styles: ["auth_pages.css"],
+        title: "Sensym | Login",
     })
 });
 

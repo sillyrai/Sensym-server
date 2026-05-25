@@ -28,6 +28,8 @@ router.get('/:registration_code', (req, res) => {
 
     res.render('_auth/register', {
         styles: ["auth_pages.css"],
+        title: "Sensym | Register",
+
         url_registration_code: reg_code
     })
 });

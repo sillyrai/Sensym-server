@@ -6,6 +6,7 @@ router.get("/", async (req, res) => {
 
     res.render('analytics', {
         styles: ["analytics_page.css"],
+        title: "Sensym | Analytics",
     });
 })
 

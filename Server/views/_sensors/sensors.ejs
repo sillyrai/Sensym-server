@@ -1,18 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Sensors</title>
-
-    <link rel="stylesheet" href="/css/global.css">
-    <% if (typeof styles !== 'undefined') { %>
-        <% styles.forEach(href => { %>
-        <link rel="stylesheet" href="/css/<%= href %>">
-        <% }) %>
-    <% } %>
-</head>
+<%- include("../Components/_head")%>
 <body>
     <%- include('../Components/navabar') %>
     <a class="add_sensors_btn" href="/sensors/add"><img src="/graphics/plus.svg"></a>
@@ -27,7 +15,7 @@
         <% if (typeof sensors !== 'undefined') { %>
             <% sensors.forEach(sensor => { %>
             <a class="sensor" href="/sensors/<%= sensor.id %>">
-                <p class="sensor-name"><%= sensor.name %></p>
+                <p class="sensor-name"><span class="sensor-icon">🌿</span><%= sensor.name %></p>
                 <p class="sensor-data-type"><span class="type-label">Type</span><%= sensor.dataType || "Not specified" %></p>
             </a>
             <% }) %>

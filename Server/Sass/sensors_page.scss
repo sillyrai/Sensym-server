@@ -115,11 +115,9 @@ main {
             font-size: 1.5em;
             font-weight: bold;
 
-            &::before {
-                content: "󰌪";
-
+            .sensor-icon {
                 color: green;
-                font-family: MapleMono;
+                font-family: "JetBrains Mono", monospace;
                 font-size: 1.2em;
                 text-shadow: 0 0 1px black;
             }

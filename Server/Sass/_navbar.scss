@@ -46,11 +46,7 @@ nav > a.sensym-button::before {
     border-radius: 1em;
 }
 
-
-
 nav .spacer { flex: 1; }
-
-
 
 nav > a.profile-button {
     text-transform: capitalize;
@@ -58,17 +54,14 @@ nav > a.profile-button {
     padding: 0 8px;
     gap: 8px;
 
-    &::before {
-        content: "󰀄";
-        
+    .profile-icon {
         display: flex;
         justify-content: center;
         align-items: center;
 
-        min-width: fit-content;
-        height: 100%;
+        aspect-ratio: 1;
+        height: 1.2em;
 
-        font-family: MapleMono;
-        font-size: 1.5em;
+        font-family: "JetBrains Mono", monospace;
     }
 }

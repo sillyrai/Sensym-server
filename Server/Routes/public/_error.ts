@@ -7,6 +7,8 @@ const router = Router();
 router.get("/", (req, res) => { 
     res.render("error", { 
         styles:["error.css"],
+        title: "Sensym | ERROR",
+
         type: 101,
         message: "Alan, we are SO FUCKED"
     }); 

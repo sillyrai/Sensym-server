@@ -10,6 +10,8 @@ router.get("/", async (req, res) => {
 
     res.render('_sensors/sensors', {
         styles: ["sensors_page.css"],
+        title: "Sensym | Sensors",
+
         sensors: data
     });
 })
@@ -19,6 +21,7 @@ router.get("/add", async (req, res) => {
 
     res.render('_sensors/page_add_sensor', {
         styles: ["page_add_sensor.css"],
+        title: "Sensym | Add Sensor"
     });
 })
 
@@ -37,6 +40,7 @@ router.get("/:sensor_id", async (req, res) => {
 
     res.render('_sensors/sensor_info', {
         styles: ["sensor_info_page.css"],
+        title: "Sensym | Sensor",
         
         sensor,
         data,
