@@ -87,6 +87,7 @@ app.use('/api', api_route);
 
 import User_Schema from "./Lib/mongoDB_models/User_Schema";
 import OneTimeRegistration_Schema from "./Lib/mongoDB_models/OneTimeRegistration_Schema";
+
 async function handleNoAccounts() { // Handle when there are no accounts in the database (first time running)
     // Check if there are any accounts in the database
     const userCount = await User_Schema.countDocuments();

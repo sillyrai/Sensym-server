@@ -3,7 +3,7 @@ import mongoose, { Schema } from "mongoose";
 const OneTimeRegistrationSchema = new Schema({
     token: { type: String, required: true },
     accountType: { type: String, required: true, enum: ["USER", "ADMIN"] },
-    expiresAt: { type: Date, required: true }
+    expiresAt: { type: Date, dwefault: () => new Date(Date.now() + 24 * 60 * 60 * 1000) }
 }, { 
     timestamps: true, 
     versionKey: false

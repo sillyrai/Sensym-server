@@ -2,6 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcrypt";
 
 import UserSchema from '../../Lib/mongoDB_models/User_Schema';
+import AuthTokenSchema from '../../Lib/mongoDB_models/OneTimeRegistration_Schema';
 
 const router = Router();
 
@@ -38,6 +39,16 @@ router.get('/:registration_code', (req, res) => {
 router.post('/', async (req, res) => {
     let body = req.body || {};
 
+    const authTokenCheck = await AuthTokenSchema
+        .findOne({token: body.registration_code})
+        .lean()
+
+    if (!authTokenCheck) {
+        return res.status(400).send({
+            message: 'Invalid auth token'
+        });
+    }
+
     let username = body.user
     let password = body.pass
 
@@ -67,6 +78,8 @@ router.post('/', async (req, res) => {
             message: 'Error saving user'
         });
     }
+
+    await AuthTokenSchema.findOneAndDelete({token: body.registration_code});
 
     return res.status(201).send({
         message: 'User registered successfully'
