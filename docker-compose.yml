@@ -4,42 +4,43 @@ services:
   # --- MONGO DATABASE SERVICE ---
   mongodb:
     image: mongo:7.0
-    container_name: stat-stack-db
+    container_name: sensym-db
     restart: always
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=stat_stack
-      - MONGO_INITDB_ROOT_PASSWORD=your_secure_password_here
+      - MONGO_INITDB_ROOT_USERNAME=sensym_admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin_pass
     volumes:
       - mongo_data:/data/db
     entrypoint: >
       bash -c "
-      echo 'db.getSiblingDB(\"stat_stack\").createUser({
-        user: \"acqua\",
-        pwd: \"4w%nWS6FD1cs#5YWFV0X3ifc20iRaod#\",
-        roles: [{ role: \"readWrite\", db: \"stat_stack\" }]
+      echo 'db.getSiblingDB(\"sensym\").createUser({
+        user: \"<user>\",
+        pwd: \"<password>\",
+        roles: [{ role: \"readWrite\", db: \"sensym\" }]
       });' > /docker-entrypoint-initdb.d/init-user.js && 
       exec docker-entrypoint.sh mongod"
     networks:
-      - stat-stack-network
+      - sensym-network
 
   # --- YOUR EXPRESS APP SERVICE ---
   express-app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: stat-stack-app
+    container_name: sensym-app
     restart: always
     ports:
-      - "3000:3000"
+      - "4000:4000"
     environment:
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=4000
       # Added wrapping quotes so the '#' character doesn't break the string
-      - MONGODB_URI=mongodb://acqua:4w%25nWS6FD1cs%235YWFV0X3ifc20iRaod%23@stat-stack-db:27017/stat_stack?authSource=stat_stack
+      - MONGODB_URI=mongodb://<user>:<password>@sensym-db:27017/sensym?authSource=sensym
+      - JWT_SECRET=<here_there_nowhere>
     depends_on:
       - mongodb
     networks:
-      - stat-stack-network
+      - sensym-network
 
 # FIXED: Network definition name now matches what the services are using
 networks:
