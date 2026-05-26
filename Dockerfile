@@ -33,7 +33,7 @@ COPY --from=builder /usr/src/app/src/Public/css ./src/Public/css
 # Use non-root user for security
 USER node
 
-EXPOSE 3000
+EXPOSE 4000
 
 # Run the server directly using node, bypassing the sass compilation script
-CMD [ "node", "Server/server.ts" ]
+CMD [ "node", "src/server.ts" ]
