@@ -44,7 +44,7 @@ services:
 
 # FIXED: Network definition name now matches what the services are using
 networks:
-  stat-stack-network:
+  sensym-network:
     driver: bridge
 
 volumes:
