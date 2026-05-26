@@ -1,9 +1,9 @@
 {
 	"type": "commonjs",
 	"scripts": {
-		"start": "npm run dep:sass && npm run dep:server",
-		"dep:sass": "sass src/Sass:src/Public/css",
-		"dep:server": "ts-node src/server.ts",
+		"start": "npm run start:sass && npm run start:server",
+		"start:sass": "sass src/Sass:src/Public/css",
+		"start:server": "ts-node src/server.ts",
 		"dev": "concurrently \"npm run dev:server\" \"npm run dev:sass\"",
 		"dev:server": "nodemon --exec ts-node src/server.ts",
 		"dev:sass": "sass --watch src/Sass:src/Public/css"
