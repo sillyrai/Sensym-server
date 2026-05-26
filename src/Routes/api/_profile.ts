@@ -50,9 +50,9 @@ router.delete('/delete-account', IsAuthenticated, async (req, res) => {
 // This guy....
 // Fine, fine, whatever
 
-router.patch('/change-username', IsAuthenticated, async (req, res) => {
+router.post('/change-username', IsAuthenticated, async (req, res) => {
     let body = req.body || {};
-    let newUsername = body.newUsername;
+    let newUsername = body.new_username;
     
     if(!newUsername) { 
         return res.status(400).send({
@@ -80,9 +80,9 @@ router.patch('/change-username', IsAuthenticated, async (req, res) => {
     });
 })
 
-router.patch('/change-password', IsAuthenticated, async (req, res) => {
+router.post('/change-password', IsAuthenticated, async (req, res) => {
     let body = req.body || {};
-    let newPassword = body.newPassword;
+    let newPassword = body.new_password;
     
     if(!newPassword) { 
         return res.status(400).send({

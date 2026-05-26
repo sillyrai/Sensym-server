@@ -37,7 +37,10 @@ router.get("/:sensor_id", async (req, res) => {
     }
 
     const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-    const data = await SensorDataSchema.find({ token: sensor.token, createdAt: {$gte: thirtyMinutesAgo}}).sort({ createdAt: -1 });
+    const data = await SensorDataSchema
+        .find({ sensor: sensor.id, createdAt: {$gte: thirtyMinutesAgo}})
+        .select("data createdAt -_id")
+        .sort({ createdAt: -1 });
 
     res.render('_sensors/sensor_info', {
         styles: ["sensor_info_page.css"],

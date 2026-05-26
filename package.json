@@ -4,7 +4,6 @@
 		"start": "npm run dep:sass && npm run dep:server",
 		"dep:sass": "sass src/Sass:src/Public/css",
 		"dep:server": "ts-node src/server.ts",
-		
 		"dev": "concurrently \"npm run dev:server\" \"npm run dev:sass\"",
 		"dev:server": "nodemon --exec ts-node src/server.ts",
 		"dev:sass": "sass --watch src/Sass:src/Public/css"
@@ -26,6 +25,7 @@
 		"mongoose": "^9.0.0",
 		"nodemon": "^3.1.11",
 		"sass": "^1.94.2",
+		"socket.io": "^4.8.3",
 		"ts-node": "^10.9.2"
 	},
 	"overrides": {

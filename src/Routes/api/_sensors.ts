@@ -53,17 +53,26 @@ router.post('/:sensorToken', async (req, res)=>{
         return res.status(500).json({message: 'Failed to record data', details: err});
     })
     */
+    const newData = (req.body as SensorDataItem[] || []).map((item:SensorDataItem) => ({
+        type: item.type,
+        value: item.value,
+        ...(item.name && { name: item.name })
+    }))
+
     await SensorDataSchema.insertOne({
-        token: sensorToken,
-        data: (req.body as SensorDataItem[] || []).map((item:SensorDataItem) => ({
-            type: item.type,
-            value: item.value,
-            ...(item.name && { name: item.name })
-        })),
+        sensor: sensor.id,
+        data: newData,
     }).then(()=>{
         return res.status(200).json({ ok: 'data recorded successfully' });
     }).catch((err)=>{
         return res.status(500).json({ error: `failure to record data: ${err}` });
+    });
+
+    // Send out the new data
+    const io = req.app.get('socketio');
+    io.to(sensor.id).emit('new_sensor_data', {
+        data: newData,
+        createdAt: Date.now()
     });
 })
 

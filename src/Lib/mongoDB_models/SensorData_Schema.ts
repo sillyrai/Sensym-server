@@ -10,8 +10,8 @@ const SensorDataSchema = new Schema({
 })
 */
 
-const SensorDataSchema = new Schema({
-    token: { type: String, required: true },
+const SensorDataSchema = new Schema({ 
+    sensor: { type: String, required: true },
     data: [{
         _id: false,
         type: { type: String, required: true },

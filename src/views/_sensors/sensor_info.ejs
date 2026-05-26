@@ -1,10 +1,9 @@
 <%
-    const sensorDataTypeToMesurement = {
-        "temperature": "º C",
-        "humidity": "% RH"
-    }
+const sensorDataTypeToMesurement = {
+    "temperature": "º C",
+    "humidity": "% RH"
+}
 %>
-
 <!DOCTYPE html>
 <html lang="en">
 <%- include("../Components/_head")%>
@@ -37,8 +36,6 @@
                     <p class="label">Token</p>
                     <p class="token"><%= sensor.token %></p>
                 </div>
-
-                <pre><%= typeof data %></pre>
             </div>
 
             <div class="graph-box">
@@ -46,133 +43,46 @@
             </div>
 
             <div class="data-table-holder"><% if (data.length > 0) { %>
-                <table>
-                    <tbody>
-                    <% let i = 0; data.forEach(entry => { i++; %>
-                        <tr class="index_col">
-                            <td><%= i %></td>
-                            
-                            <td class="date_col">
-                                <%= entry.createdAt.toLocaleDateString("lv-LV", dataDateFormat) %>
-                            </td>
-                            
-                            <td class="time_col">
-                                <%= entry.createdAt.toLocaleTimeString("lv-LV", dataTimeFormat) %>
-                            </td>
-                            
-                            <% entry.data.forEach(item => { %>
-                            <td class="data_col">
-                                <span class="sensor_data_col"><%= item.value %><%= sensorDataTypeToMesurement[item.type] %></span>
-                            </td>
+                <table class="header_table">
+                    <thead>
+                        <tr>
+                            <th class="time_col_label">Time</th>
+                            <th class="date_col_label">Date</th>
+                            <% data[0].data.forEach(item => { %>
+                            <th class="data_col_label">
+                                <span class="data_input_name"><%= item.name %></span> <span class="data_type_name"><%= item.type %></span>
+                            </th>
                             <% }) %>
                         </tr>
-                    <% }); %>
-                    </tbody>
+                    </thead>
                 </table>
+                <div class="data_table_holder">
+                    <table>
+                        <tbody id="data_table">
+                        <% let i = 0; data.forEach(entry => { i++; %>
+                            <tr class="index_col">
+                                <td class="time_col">
+                                    <%= entry.createdAt.toLocaleTimeString("lv-LV", dataTimeFormat) %>
+                                </td>
+
+                                <td class="date_col">
+                                    <%= entry.createdAt.toLocaleDateString("lv-LV", dataDateFormat) %>
+                                </td>
+                                
+                                <% entry.data.forEach(item => { %>
+                                <td class="data_col">
+                                    <span class="sensor_data_col"><%= item.value %><%= sensorDataTypeToMesurement[item.type] %></span>
+                                </td>
+                                <% }) %>
+                            </tr>
+                        <% }); %>
+                        </tbody>
+                    </table>
+                </div>
                 <% } else { %><p class="no_data_message">No Data</p><% } %>
             </div>
         </div>
     </main>
 </body>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-    const chartMinuteLenght = 30;
-
-    const tick_color = "#777";
-    const grid_color = "#444";
-
-    const temperatureData = <%- JSON.stringify(data) %>;
-
-    temperatureData.sort((a, b) =>
-        new Date(a.createdAt) - new Date(b.createdAt)
-    );
-
-    const chartData = temperatureData.map(item => ({
-        x: new Date(item.createdAt),
-        y: Number(item.data[0].value)
-    })).filter(point => !isNaN(point.y));
-
-    // filter to last 30 minutes
-    const now = new Date();
-    const thirtyMinutesAgo = new Date(now.getTime() - chartMinuteLenght * 60 * 1000);
-    const recentChartData = chartData.filter(point => point.x >= thirtyMinutesAgo && point.x <= now);
-
-    const ctx = document.getElementById('sensor_data_line_graph').getContext('2d');
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            datasets: [{
-                label: 'Temperature (°C)',
-                data: recentChartData,
-                borderColor: 'rgb(46, 161, 80)',
-                backgroundColor: 'rgba(255, 255, 255, 0)',
-                tension: 0.3,
-                fill: false,
-                borderWidth: 2,
-                pointRadius: 0,
-                pointHoverRadius: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            parsing: false,
-            scales: {
-                x: {
-                    type: 'time',
-                    time: {
-                        unit: 'minute',
-                        stepSize: chartMinuteLenght,
-                        displayFormats: {
-                            minute: 'HH:mm'
-                        },
-                        tooltipFormat: 'HH:mm'
-                    },
-                    min: thirtyMinutesAgo,
-                    max: now,
-
-                    grid: {
-                        color: grid_color,
-                        borderColor: grid_color,
-                        drawTicks: true
-                    },
-                    ticks: {
-                        color: tick_color,
-                        font: { size: 12 }
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Temperature (°C)'
-                    },
-                    beginAtZero: false,
-
-                    grid: {
-                        color: grid_color,
-                        borderColor: grid_color,
-                        drawTicks: true
-                    },
-                    ticks: {
-                        color: tick_color,
-                        font: { size: 12 }
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false  // <-- hide the top legend
-                }
-            },
-        }
-    });
-});
-</script>
-
+<%- include("./_page_sensor_info_scripts") %>
 </html>

@@ -4,7 +4,7 @@ import AuthTokenSchema from "../mongoDB_models/AuthenticationTokenSchema_Schema"
 import UserSchema from "../mongoDB_models/User_Schema";
 
 export default async (req: Request, res: Response, next: Function) => {
-    let authHeader = req.headers['authorization'] || req.query.authToken;
+    let authHeader = req.headers['authorization'] || req.query.auth_token;
     if(!authHeader) {
         return res.status(401).send({
             message: 'Authorization header is required'

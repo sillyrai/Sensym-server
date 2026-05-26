@@ -2,6 +2,9 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+
 // ------------------------- Module import -------------------------
 
 import connectDB from "./Lib/database";
@@ -28,6 +31,8 @@ import api_route from "./Routes/api";
 dotenv.config({quiet: true});
 
 let app = express();
+const httpServer = createServer(app); // Create native HTTP server
+const io = new Server(httpServer);    // Tie Socket.IO to the HTTP server
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -36,18 +41,34 @@ app.use(express.static("src/Public"));
 
 app.set('view engine', 'ejs');
 app.set('views', 'src/Views');
+app.set('socketio', io); // holy moly
 
 // ------------------------- App middleware -------------------------
 
 app.use(URLNormalize);
 app.use(RequestLogger);
 
+// ------------------------- WebSockets -------------------------
+
+io.on('connection', (socket) => {
+    // Client sends the unique sensor token to join a room
+    socket.on('live_sensor_data_flow', (sensorToken: string) => {
+        socket.join(sensorToken);
+        // console.log(`User ${socket.id} joined room for sensor: ${sensorToken}`);
+    });
+
+    socket.on('disconnect', () => {
+        // console.log(`User ${socket.id} disconnected`);
+    });
+});
+
 // ------------------------- App Routes-------------------------
+
 // Other deeper ones are located (such as /api/auth) in their respective files (i.e /api/index.ts) ????????? ok whatever ghoost 
 // https://imgur.com/a/L5rytts
 //
-// WTF is this ^^^^ ???? What? 
-// -Ghoost
+// WTF is this ^^^^ ???? What?
+// - Ghoost
 
 app.use('/', public_route);
 
@@ -95,7 +116,7 @@ const serverStart = async () => {
 
         await handleNoAccounts();
         // Start the server
-        app.listen(PORT, () => {
+        httpServer.listen(PORT, () => {
             console.log(`\x1b[32m█ \x1b[37m[ ${dateLog()} ]\x1b[38;5;27m App starting in \x1b[38;5;99m${NODE_ENV}\x1b[38;5;27m mode on port \x1b[38;5;99m${PORT}\x1b[0m`);
         });
 
