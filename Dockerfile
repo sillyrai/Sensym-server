@@ -11,7 +11,7 @@ RUN npm install
 COPY . .
 
 # Compile SCSS to CSS
-RUN npm run start:scss
+RUN npm run start:sass
 
 # --- Stage 2: Production Run Stage ---
 FROM node:20-slim
