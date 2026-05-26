@@ -1,0 +1,14 @@
+<nav>
+    <a class="sensym-button" href="/">Sensym</a>
+    <a href="/sensors">Sensors</a>
+    <a href="/analytics">Analytics</a>
+
+    <% if (typeof user_role !== "undefined" && user_role === "ADMIN") { %><a href="/users">Users</a><% } %>
+
+    <div class="spacer"></div>
+
+    <a class="profile-button" href="/profile">
+        <img class="profile-icon" src="/graphics/profile.svg" alt="🟢">
+        <%= userData.user %>
+    </a>
+</nav>

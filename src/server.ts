@@ -40,7 +40,7 @@ app.use(cookieParser());
 app.use(express.static("src/Public"));
 
 app.set('view engine', 'ejs');
-app.set('views', 'src/Views');
+app.set('views', 'src/Views'); // pls pls just do it
 app.set('socketio', io); // holy moly
 
 // ------------------------- App middleware -------------------------

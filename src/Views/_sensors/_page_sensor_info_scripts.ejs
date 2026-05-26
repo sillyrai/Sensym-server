@@ -1,0 +1,162 @@
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+<script>
+const socket = io();
+
+const currentSensorId = "<%= sensor.id %>";
+const sensorDataSet = <%- JSON.stringify(data) %>;
+
+let theChart = null;
+
+const chartMinuteLenght = 30;
+const tick_color = "#777";
+const grid_color = "#444";
+
+const dataDateFormat = <%- JSON.stringify(dataDateFormat) %>;
+const dataTimeFormat = <%- JSON.stringify(dataTimeFormat) %>;
+const sensorDataTypeToMesurement = {
+    "temperature": "º C",
+    "humidity": "% RH"
+}
+
+const dataTableElement = document.getElementById("data_table");
+
+function updateDataGraph() {
+    // Sort data
+    sensorDataSet.sort((a, b) =>
+        new Date(a.createdAt) - new Date(b.createdAt)
+    );
+
+    // Create a an X an Y map from all the data
+    const chartData = sensorDataSet.map(item => ({
+        x: new Date(item.createdAt),
+        y: Number(item.data[0].value)
+    })).filter(point => !isNaN(point.y));
+
+    // Filter to last 30 minutes
+    const now = new Date();
+    const thirtyMinutesAgo = new Date(now.getTime() - chartMinuteLenght * 60 * 1000);
+    const recentChartData = chartData.filter(point => point.x >= thirtyMinutesAgo && point.x <= now);
+
+    if (theChart) {
+        theChart.data.datasets[0].data = recentChartData;
+        theChart.options.scales.x.min = thirtyMinutesAgo;
+        theChart.options.scales.x.max = now;
+        
+        // Render the updates smoothly
+        theChart.update();
+        return; 
+    }
+
+    const ctx = document.getElementById('sensor_data_line_graph').getContext('2d');
+    theChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Temperature (°C)',
+                data: recentChartData,
+                borderColor: 'rgb(46, 161, 80)',
+                backgroundColor: 'rgba(255, 255, 255, 0)',
+                tension: 0.3,
+                fill: false,
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHoverRadius: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            parsing: false,
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: 'minute',
+                        stepSize: chartMinuteLenght,
+                        displayFormats: {
+                            minute: 'HH:mm'
+                        },
+                        tooltipFormat: 'HH:mm'
+                    },
+                    min: thirtyMinutesAgo,
+                    max: now,
+                    grid: {
+                        color: grid_color,
+                        borderColor: grid_color,
+                        drawTicks: true
+                    },
+                    ticks: {
+                        color: tick_color,
+                        font: { size: 12 }
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: `${sensorDataSet[0].data[0].type} (${sensorDataTypeToMesurement[sensorDataSet[0].data[0].type]})`
+                    },
+                    beginAtZero: false,
+                    grid: {
+                        color: grid_color,
+                        borderColor: grid_color,
+                        drawTicks: true
+                    },
+                    ticks: {
+                        color: tick_color,
+                        font: { size: 12 },
+                        precision: 0
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+        }
+    });
+}
+
+function updateDataTable(data) {
+    const createdAtUNIX = new Date(data.createdAt);
+
+    dataTableElement.insertAdjacentHTML("afterbegin", `
+    <tr class="index_col">   
+        <td class="time_col">
+            ${createdAtUNIX.toLocaleTimeString("lv-LV", dataTimeFormat)}
+        </td>
+
+        <td class="date_col">
+            ${createdAtUNIX.toLocaleDateString("lv-LV", dataDateFormat)}
+        </td>
+        
+        ${data.data.map(a => `<td class="data_col">${a.value}${sensorDataTypeToMesurement[a.type]}</td>`).join('')}
+    </tr>
+    `)
+}
+
+function onNewIncomingData(newData) {
+    sensorDataSet.push(newData);
+    updateDataGraph();
+    updateDataTable(newData);
+}
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    updateDataGraph();
+});
+
+
+socket.on('connect', () => {
+    // console.log('Connected to WebSocket server');
+    socket.emit('live_sensor_data_flow', currentSensorId);
+});
+
+socket.on('new_sensor_data', (data) => {
+    onNewIncomingData(data);
+});
+
+// socket.on('disconnect', () => { console.log('Disconnected from server'); });
+</script>

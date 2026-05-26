@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include("../Components/_head")%>
+<body>
+    <%- include('../Components/navabar') %>
+    
+    <main>
+        <form method="POST" class="new_sensor_form" action="/api/sensors/newSensor?<%= new URLSearchParams({ authToken: authToken || '' }).toString() %>">
+            <p class="form_title">Add a new sensor</p>
+
+            <p class="input_label">Name</p>
+            <input type="text" name="sensor_name" placeholder="..."/>
+
+            <input type="submit" value="Add" />
+        </form>
+    </main>
+</body>
+</html>

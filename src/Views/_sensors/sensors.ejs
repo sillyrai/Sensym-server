@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include("../Components/_head")%>
+<body>
+    <%- include('../Components/navabar') %>
+    <a class="add_sensors_btn" href="/sensors/add"><img src="/graphics/plus.svg"></a>
+    
+    <main>
+        <div class="filters">
+            <p class="filter-label"></p>
+        </div>
+
+
+        <div class="sensor-list-holder"><div class="sensor-list">
+        <% if (typeof sensors !== 'undefined') { %>
+            <% sensors.forEach(sensor => { %>
+            <a class="sensor" href="/sensors/<%= sensor.id %>">
+                <p class="sensor-name"><span class="sensor-icon">🌿</span><%= sensor.name %></p>
+                <p class="sensor-data-type"><span class="type-label">Type</span><%= sensor.dataType || "Not specified" %></p>
+            </a>
+            <% }) %>
+        <% } %>
+        </div></div>
+    </main>
+</body>
+</html>

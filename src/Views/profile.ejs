@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include("Components/_head")%>
+<body>
+    <%- include('./Components/navabar') %>
+    <main>
+        <div class="pfp">
+            <div class="pfp_holder"><img src="/graphics/profile.svg"></div>
+        </div>
+        <div class="profile_info">
+            <div class="profile_info_header">
+                <div>
+                    <p class="user"><%= user %></p>
+                    <div class="role_line">
+                        <p class="label">role:</p><p class="role"><%= role %></p>
+                    </div>
+                </div>
+                <div>
+                    <button id="profile_edit_button">edit</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="edit_window" class="hidden-window">
+        <form id="user-change-form">
+            <p class="label">Usernamechange</p>
+            <input  id="user-change-form-input" name="new_username" placeholder="user...">
+            <input type="submit">
+        </form>
+
+        <form id="pass-change-form">
+            <p class="label">Password change</p>
+            <input id="pass-change-form-input" name="new_password" placeholder="pass...">
+            <input type="submit">
+        </form>
+    </div>
+</body>
+<script>
+    const profileEditButton = document.getElementById("profile_edit_button");
+    const editWindow = document.getElementById("edit_window");
+
+    profileEditButton.addEventListener("click", (e) => {
+        editWindow.style.display = "flex";
+    });
+
+    editWindow.addEventListener("click", (e) => {
+        if (e.target === editWindow) { editWindow.style.display = "none"; }
+    });
+
+    const userChangeForm = document.getElementById("user-change-form");
+    const passChangeForm = document.getElementById("pass-change-form");
+
+    const userChangeInput = document.getElementById("user-change-form-input");
+    const passChangeInput = document.getElementById("pass-change-form-input");
+
+    // 1. Added 'e' parameter and e.preventDefault()
+    userChangeForm.addEventListener("submit", (e) => {
+        e.preventDefault(); 
+
+        fetch(`/api/profile/change-username`, {
+            method: 'POST',
+            headers: {
+                'Content-type' :'application/json',
+                'authorization': `Bearer <%= auth_token%>`
+            },
+            body: JSON.stringify({
+                "new_username": userChangeInput.value,
+            })
+        }).then((response) => {
+            return response.json();
+        }).then((data) => {
+            console.log(data);
+        });
+    });
+
+    // 1. Added 'e' parameter and e.preventDefault()
+    passChangeForm.addEventListener("submit", (e) => {
+        e.preventDefault(); 
+
+        fetch(`/api/profile/change-password`, {
+            method: 'POST',
+            headers: {
+                'Content-type' :'application/json',
+                'authorization': `Bearer <%= auth_token%>`
+            },
+            body: JSON.stringify({
+                "new_password": passChangeInput.value,
+            })
+        }).then((response) => {
+            return response.json();
+        }).then((data) => {
+            console.log(data);
+        });
+    });
+</script>
+</html>
