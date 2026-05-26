@@ -5,8 +5,8 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-# Install all dependencies (including sass) to compile assets
-RUN npm install
+# Install dependencies to get the Sass compiler
+RUN npm ci
 
 COPY . .
 
@@ -18,13 +18,13 @@ FROM node:20-slim
 
 WORKDIR /usr/src/app
 
+# Copy package files first for proper layer caching
 COPY package*.json ./
 
-# Install ONLY production dependencies (ignores nodemon/concurrently if they were devDependencies, 
-# but since they are in 'dependencies', we prune everything we don't need or just copy node_modules)
-RUN npm ci --only=production
+# Install ALL dependencies since ts-node and sass are required at runtime
+RUN npm ci
 
-# Copy application code from the local directory
+# Copy the rest of the application source code
 COPY . .
 
 # Overwrite the Public/css folder with the compiled CSS from the builder stage
@@ -35,5 +35,5 @@ USER node
 
 EXPOSE 4000
 
-# Run the server directly using node, bypassing the sass compilation script
-CMD [ "node", "src/server.ts" ]
+# Run the server using ts-node as defined in your package.json
+CMD [ "npm", "run", "start:server" ]
