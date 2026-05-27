@@ -58,7 +58,7 @@ router.post('/', async (req, res) => {
         });
     }
 
-    let exists = await UserSchema.findOne({ username: username });
+    const exists = await UserSchema.findOne({ username: username });
     if(exists) {
         return res.status(400).send({
             message: 'Username already exists'
@@ -68,7 +68,7 @@ router.post('/', async (req, res) => {
     const password_salt = await bcrypt.genSalt(10);
     const hashed_password = await bcrypt.hash(password, password_salt);
 
-    let saveResult = await UserSchema.insertOne({
+    const saveResult = await UserSchema.insertOne({
         username: username,
         password: hashed_password
     });
