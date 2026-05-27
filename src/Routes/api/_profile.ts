@@ -1,4 +1,5 @@
 import {Router} from 'express';
+import bcrypt from "bcrypt";
 
 import text from '../../Lib/TextStuff';
 import UserSchema from '../../Lib/mongoDB_models/User_Schema';
@@ -82,15 +83,21 @@ router.post('/change-username', IsAuthenticated, async (req, res) => {
 
 router.post('/change-password', IsAuthenticated, async (req, res) => {
     let body = req.body || {};
-    let newPassword = body.new_password;
+    let new_password = body.new_password;
     
-    if(!newPassword) { 
+    if(!new_password) { 
         return res.status(400).send({
             message: 'New password is required'
         });
     }
 
-    let updateResult = await UserSchema.updateOne({ _id: res.locals.user._id }, { password: text.sha256(newPassword) });
+    const password_salt = await bcrypt.genSalt(10);
+    const hashed_new_password = await bcrypt.hash(new_password, password_salt);
+
+    const updateResult = await UserSchema.updateOne(
+        { _id: res.locals.user._id }, 
+        { password: hashed_new_password }
+    );
 
     if(updateResult.modifiedCount === 0) {
         return res.status(500).send({
