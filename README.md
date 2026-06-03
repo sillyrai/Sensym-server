@@ -1,9 +1,5 @@
 # Sensym
 
-## ESP sensor
-
-...
-
 ## Server
 ### Server .env variables
 ```
