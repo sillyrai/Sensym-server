@@ -41,6 +41,10 @@ router.get("/:sensor_id", async (req, res) => {
         .find({ sensor: sensor.id, createdAt: {$gte: thirtyMinutesAgo}})
         .select("data createdAt -_id")
         .sort({ createdAt: -1 });
+    const allData = await SensorDataSchema
+        .find({ sensor: sensor.id })
+        .select("data createdAt -_id")
+        .sort({ createdAt: 1 });
 
     res.render('_sensors/sensor_info', {
         styles: ["sensor_info_page.css"],
@@ -48,6 +52,7 @@ router.get("/:sensor_id", async (req, res) => {
         
         sensor,
         data,
+        allData,
 
         timeFormat: { hour: "numeric", minute: "numeric" },
         dateFormat: { year: "numeric", month: "numeric", day: "numeric" },

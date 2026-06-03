@@ -24,7 +24,7 @@ main {
     padding: 16px;
     gap: 24px;
 
-    background-color: #1a1a1a;
+    background-color: var(--surface-2);
     border-radius: 6px;
 
     .form_title {
@@ -35,7 +35,7 @@ main {
 
     .input_label {
         font-size: 18px;
-        color: #797;
+        color: var(--accent-muted);
     }
     input {
         width: 100%;
@@ -44,19 +44,19 @@ main {
 
         background-color: transparent;
 
-        border: 1px solid #777;
+        border: 1px solid var(--surface-6);
         border-radius: 4px;
         outline: none;
 
-        color: #ddd;
+        color: var(--text-input);
         font-size: 16px;
 
         &:focus {
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-light);
         }
 
         &::placeholder {
-            color: #555;
+            color: var(--text-placeholder);
         }
     }
     input[type="submit"] {
@@ -73,19 +73,19 @@ main {
         font-size: 18px;
 
         background-color: transparent;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-light);
         border-radius: 1em;
 
-        color: #ddd;
+        color: var(--text-input);
         font-size: 18px;
 
         cursor: pointer;
         transition: all 0.1s ease-in-out;
 
         &:hover {
-            background-color: #ddd;
+            background-color: var(--page-fg);
 
-            color: #000;
+            color: var(--page-bg);
         }
     }
 }

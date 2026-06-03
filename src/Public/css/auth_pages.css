@@ -7,7 +7,7 @@
   padding: 12px;
   gap: 12px;
   backdrop-filter: blur(8px);
-  border: 2px solid #374;
+  border: 2px solid var(--accent);
   border-radius: 4px;
 }
 .credential-form .form-inputs {
@@ -21,17 +21,17 @@
   width: 100%;
   padding: 4px 6px;
   background-color: transparent;
-  border: 1px solid #777;
+  border: 1px solid var(--surface-6);
   border-radius: 4px;
   outline: none;
-  color: #ddd;
+  color: var(--text-input);
   font-size: 16px;
 }
 .credential-form .form-inputs .password-input:focus, .credential-form .form-inputs .username-input:focus {
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-light);
 }
 .credential-form .form-inputs .password-input::placeholder, .credential-form .form-inputs .username-input::placeholder {
-  color: #555;
+  color: var(--text-placeholder);
 }
 .credential-form .form-inputs .registration-code-input {
   width: 90%;
@@ -39,20 +39,20 @@
   padding: 4px 6px;
   background-color: transparent;
   border: none;
-  border-bottom: 1px solid #777;
+  border-bottom: 1px solid var(--surface-6);
   outline: none;
-  color: #ddd;
+  color: var(--text-input);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   font-size: 16px;
   letter-spacing: 1px;
 }
 .credential-form .form-inputs .registration-code-input:focus {
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-light);
 }
 .credential-form .form-inputs .registration-code-input::before, .credential-form .form-inputs .registration-code-input::after {
   width: 1em;
   height: 1em;
-  color: #ddd;
+  color: var(--text-input);
 }
 .credential-form .form-inputs .registration-code-input::before {
   content: "<";
@@ -66,16 +66,16 @@
   margin: 1.2em 0;
   padding: 4px 16px;
   background-color: transparent;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-light);
   border-radius: 1em;
-  color: #ddd;
+  color: var(--text-input);
   font-size: 18px;
   cursor: pointer;
   transition: all 0.1s ease-in-out;
 }
 .credential-form .form-inputs .submit-input:hover {
-  background-color: #ddd;
-  color: #000;
+  background-color: var(--page-fg);
+  color: var(--page-bg);
 }
 .credential-form .form-bottom {
   display: flex;
@@ -89,9 +89,9 @@
   width: fit-content;
   padding: 2px 12px;
   gap: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-light);
   border-radius: 1em;
-  color: #ddd;
+  color: var(--text-input);
   font-size: 14px;
   text-decoration: none;
   transition: all 0.1s ease-in-out;
@@ -101,8 +101,8 @@
   width: fit-content;
 }
 .credential-form .form-bottom .other-auth-redirect:hover {
-  background-color: #ddd;
-  color: #000;
+  background-color: var(--page-fg);
+  color: var(--page-bg);
 }
 .credential-form .form-bottom .other-auth-redirect:hover::after {
   content: "▶";
@@ -113,9 +113,9 @@
   width: fit-content;
   padding: 4px 8px;
   margin-left: auto;
-  border-top: 1px solid #343;
-  border-bottom: 1px solid #343;
-  color: #343;
+  border-top: 1px solid var(--accent-muted);
+  border-bottom: 1px solid var(--accent-muted);
+  color: var(--accent-muted);
   text-transform: uppercase;
 }
 .credential-form .form-bottom img.birka {
@@ -128,7 +128,7 @@ body {
   justify-content: center;
   align-items: center;
   gap: 16px;
-  background: radial-gradient(green 2px, transparent 1px) repeat, #101210;
+  background: radial-gradient(var(--accent) 2px, transparent 1px) repeat, var(--page-bg);
   background-size: 4em 4em;
   animation: slide 8s linear infinite;
 }
@@ -152,26 +152,48 @@ body {
   padding: 8px 16px;
   backdrop-filter: blur(8px);
   border-radius: 4px;
-  color: #eee;
+  color: var(--page-fg);
   font-size: 18px;
 }
 
 .infobox.info {
   position: relative;
-  box-shadow: 0 0 16px -2px #8caaee inset;
-  color: #8caaee;
+  box-shadow: 0 0 16px -2px var(--info) inset;
+  color: var(--info);
 }
 
 .infobox.warning {
   position: relative;
-  box-shadow: 0 0 16px -2px #e5c890 inset;
-  color: #e5c890;
+  box-shadow: 0 0 16px -2px var(--warning) inset;
+  color: var(--warning);
 }
 
 .infobox.error {
   position: relative;
-  box-shadow: 0 0 16px -2px #e78284 inset;
-  color: #e78284;
+  box-shadow: 0 0 16px -2px var(--auth-error) inset;
+  color: var(--auth-error);
+}
+
+.auth-theme-toggle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  padding: 2px 12px;
+  margin-left: 8px;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--border-light);
+  border-radius: 1em;
+  color: var(--text-input);
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.1s ease-in-out;
+}
+.auth-theme-toggle:hover {
+  background-color: var(--page-fg);
+  color: var(--page-bg);
 }
 
 /*# sourceMappingURL=auth_pages.css.map */

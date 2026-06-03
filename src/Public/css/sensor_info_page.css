@@ -22,7 +22,7 @@ main {
   width: 100%;
   height: 100%;
   padding: 8px;
-  background-color: #333;
+  background-color: var(--surface-3);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -39,7 +39,7 @@ main {
   gap: 2px;
 }
 .info-box .label {
-  color: #888;
+  color: var(--text-muted);
   font-size: 14px;
   user-select: none;
 }
@@ -49,12 +49,12 @@ main {
 .info-box .type {
   width: max-content;
   padding: 2px 4px;
-  border: 1px solid #555;
+  border: 1px solid var(--border-strong);
   border-radius: 4px;
 }
 .info-box .id {
   padding: 3px 6px;
-  background-color: #222;
+  background-color: var(--surface-7);
   border-radius: 4px;
   font-family: "JetBrains Mono", monospace;
   text-transform: uppercase;
@@ -68,11 +68,32 @@ main {
 }
 .info-box .token {
   padding: 3px 6px;
-  background-color: #222;
+  background-color: var(--surface-7);
   border-radius: 4px;
   font-family: "JetBrains Mono", monospace;
   text-transform: uppercase;
   letter-spacing: 2px;
+}
+.info-box .export-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+.info-box .export-actions button {
+  padding: 6px 10px;
+  background-color: transparent;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  color: var(--page-fg);
+  font-size: 14px;
+  cursor: pointer;
+}
+.info-box .export-actions button:hover {
+  background-color: var(--surface-2);
+  border-color: var(--page-fg);
 }
 
 .graph-box {
@@ -102,7 +123,7 @@ main {
 }
 .data-table-holder .header_table .data_type_name {
   padding: 2px 6px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-light);
   border-radius: 100px;
   font-size: 13px;
 }
@@ -117,7 +138,7 @@ main {
 }
 .data-table-holder .data_table_holder tbody tr {
   height: max-content;
-  background-color: #444;
+  background-color: var(--surface-4);
   border-radius: 4px;
 }
 .data-table-holder .data_table_holder tbody tr td {
@@ -156,8 +177,8 @@ main {
 .no_data_message {
   margin: auto;
   padding: 12px 16px;
-  box-shadow: 0 0 16px 8px #a33, 0 0 8px 4px #a33 inset;
-  color: #a33;
+  box-shadow: 0 0 16px 8px var(--danger), 0 0 8px 4px var(--danger) inset;
+  color: var(--danger);
   font-size: 22px;
   font-weight: bold;
   text-transform: uppercase;

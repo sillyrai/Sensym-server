@@ -1,5 +1,5 @@
 body {
-  background: linear-gradient(115deg, #F7971E 0%, #FFD200 100%) no-repeat;
+  background: linear-gradient(115deg, rgba(247, 151, 30, 0.95) 0%, rgba(255, 210, 0, 0.95) 100%) no-repeat, var(--page-bg);
   background-size: 100% 100%;
 }
 
@@ -8,9 +8,9 @@ body {
   width: 100%;
   height: 8rem;
   margin: 2rem 0;
-  background: repeating-linear-gradient(-45deg, black, black 2rem, transparent 2rem, transparent 4rem);
+  background: repeating-linear-gradient(-45deg, var(--page-fg), var(--page-fg) 2rem, transparent 2rem, transparent 4rem);
   background-size: calc(100% + 11.312rem) 100%;
-  border: 0.6rem solid black;
+  border: 0.6rem solid var(--page-fg);
   border-style: solid none;
   animation: glide 3s infinite linear;
 }
@@ -35,14 +35,14 @@ body {
   display: flex;
   flex-direction: column;
   width: 100%;
-  color: black;
+  color: var(--page-fg);
 }
 .info h1 {
   font-family: "Leixo", sans-serif;
   font-size: 10rem;
 }
 .info h2 {
-  border-bottom: 0.4rem solid black;
+  border-bottom: 0.4rem solid var(--page-fg);
   font-family: "Leixo", sans-serif;
   font-size: 5rem;
 }

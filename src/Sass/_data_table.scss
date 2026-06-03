@@ -15,20 +15,20 @@ table {
     width: 100%;
 
     tr:nth-child(odd) {
-        background-color: #333;
+        background-color: var(--surface-3);
     }
     tr:nth-child(1) {
         background-color: transparent;
     }
     
     &, th {
-        border: 2px solid #555;
+        border: 2px solid var(--border-strong);
         border-collapse: collapse;
     }
     td {
         padding: 2px 4px;
 
-        border: 1px solid #555;
+        border: 1px solid var(--border-strong);
 
         text-wrap: nowrap;
     }

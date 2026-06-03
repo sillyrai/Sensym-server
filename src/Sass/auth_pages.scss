@@ -6,7 +6,7 @@ body {
 
     gap: 16px;
 
-    background: radial-gradient(green 2px, transparent 1px) repeat, #101210;
+    background: radial-gradient(var(--accent) 2px, transparent 1px) repeat, var(--page-bg);
     background-size: 4em 4em;
 
     animation: slide 8s linear infinite;
@@ -32,21 +32,49 @@ body {
     backdrop-filter: blur(8px);
     border-radius: 4px;
 
-    color: #eee;
+    color: var(--page-fg);
     font-size: 18px;
 }
 .infobox.info {
     position: relative;
-    box-shadow: 0 0 16px -2px #8caaee inset;
-    color: #8caaee;
+    box-shadow: 0 0 16px -2px var(--info) inset;
+    color: var(--info);
 }
 .infobox.warning {
     position: relative;
-    box-shadow: 0 0 16px -2px #e5c890 inset;
-    color: #e5c890;
+    box-shadow: 0 0 16px -2px var(--warning) inset;
+    color: var(--warning);
 }
 .infobox.error {
     position: relative;
-    box-shadow: 0 0 16px -2px #e78284 inset;
-    color: #e78284;
+    box-shadow: 0 0 16px -2px var(--auth-error) inset;
+    color: var(--auth-error);
+}
+
+.auth-theme-toggle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: fit-content;
+
+    padding: 2px 12px;
+    margin-left: 8px;
+    gap: 8px;
+
+    background: transparent;
+    border: 1px solid var(--border-light);
+    border-radius: 1em;
+
+    color: var(--text-input);
+    font-size: 14px;
+    text-decoration: none;
+
+    cursor: pointer;
+    transition: all 0.1s ease-in-out;
+
+    &:hover {
+        background-color: var(--page-fg);
+        color: var(--page-bg);
+    }
 }

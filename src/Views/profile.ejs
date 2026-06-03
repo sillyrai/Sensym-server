@@ -17,6 +17,9 @@
                 </div>
                 <div>
                     <button id="profile_edit_button">edit</button>
+                    <% if (role === "ADMIN") { %>
+                    <button id="profile_generate_token_button">new registration token</button>
+                    <% } %>
                 </div>
             </div>
         </div>
@@ -34,15 +37,36 @@
             <input id="pass-change-form-input" name="new_password" placeholder="pass...">
             <input type="submit">
         </form>
+
+        <% if (role === "ADMIN") { %>
+        <form id="registration-token-form">
+            <p class="label">Registration token</p>
+            <select id="registration-token-account-type" name="accountType">
+                <option value="USER">USER</option>
+                <option value="ADMIN">ADMIN</option>
+            </select>
+            <input id="registration-token-expires-at" name="expiresAt" type="datetime-local">
+            <input type="submit" value="Generate">
+            <p id="registration-token-output"></p>
+        </form>
+        <% } %>
     </div>
 </body>
 <script>
     const profileEditButton = document.getElementById("profile_edit_button");
     const editWindow = document.getElementById("edit_window");
+    const profileGenerateTokenButton = document.getElementById("profile_generate_token_button");
 
     profileEditButton.addEventListener("click", (e) => {
         editWindow.style.display = "flex";
     });
+
+    if (profileGenerateTokenButton) {
+        profileGenerateTokenButton.addEventListener("click", () => {
+            editWindow.style.display = "flex";
+            document.getElementById("registration-token-form")?.scrollIntoView({ block: "center" });
+        });
+    }
 
     editWindow.addEventListener("click", (e) => {
         if (e.target === editWindow) { editWindow.style.display = "none"; }
@@ -50,9 +74,13 @@
 
     const userChangeForm = document.getElementById("user-change-form");
     const passChangeForm = document.getElementById("pass-change-form");
+    const registrationTokenForm = document.getElementById("registration-token-form");
 
     const userChangeInput = document.getElementById("user-change-form-input");
     const passChangeInput = document.getElementById("pass-change-form-input");
+    const registrationTokenAccountType = document.getElementById("registration-token-account-type");
+    const registrationTokenExpiresAt = document.getElementById("registration-token-expires-at");
+    const registrationTokenOutput = document.getElementById("registration-token-output");
 
     // 1. Added 'e' parameter and e.preventDefault()
     userChangeForm.addEventListener("submit", (e) => {
@@ -93,5 +121,28 @@
             console.log(data);
         });
     });
+
+    if (registrationTokenForm) {
+        registrationTokenForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            fetch(`/api/profile/generate-registration-token`, {
+                method: 'POST',
+                headers: {
+                    'Content-type' :'application/json',
+                    'authorization': `Bearer <%= auth_token%>`
+                },
+                body: JSON.stringify({
+                    accountType: registrationTokenAccountType.value,
+                    expiresAt: registrationTokenExpiresAt.value
+                })
+            }).then((response) => response.json())
+            .then((data) => {
+                if (registrationTokenOutput) {
+                    registrationTokenOutput.textContent = data.token ? `Token: ${data.token}` : (data.message || 'Failed to generate token');
+                }
+            });
+        });
+    }
 </script>
 </html>

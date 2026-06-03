@@ -3,7 +3,7 @@
 ## Server
 ### Server .env variables
 ```
-DB_URL = "mongodb://<USER>:<PASS>@<HOST+PORT>/<DATABASE>?authSource=<DATABASE>"
+MONGODB_URI = "mongodb://<USER>:<PASS>@<HOST+PORT>/<DATABASE>?authSource=<DATABASE>"
 
 PORT = 3000
 NODE_ENV = "development" # 'deployment'

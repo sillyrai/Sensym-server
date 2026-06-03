@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import text from '../../Lib/TextStuff';
 import UserSchema from '../../Lib/mongoDB_models/User_Schema';
 import IsAuthenticated from '../../Lib/backend_auth';
+import OneTimeRegistrationSchema from '../../Lib/mongoDB_models/OneTimeRegistration_Schema';
 
 const router = Router();
 
@@ -16,7 +17,7 @@ router.get('/', IsAuthenticated ,async (req, res) => {
 
 router.delete('/delete-account', IsAuthenticated, async (req, res) => {
     // Only Administrators can delete accounts.
-    if(res.locals.user.accountType !== "ADMIN") {
+    if(res.locals.user.userType !== "ADMIN") {
         return res.status(403).send({
             message: 'Only administrators can delete accounts'
         });
@@ -107,6 +108,52 @@ router.post('/change-password', IsAuthenticated, async (req, res) => {
 
     return res.status(200).send({
         message: 'Password updated successfully'
+    });
+})
+
+router.post('/generate-registration-token', IsAuthenticated, async (req, res) => {
+    if (res.locals.user.userType !== "ADMIN") {
+        return res.status(403).send({
+            message: 'Only administrators can generate registration tokens'
+        });
+    }
+
+    const body = req.body || {};
+    const accountType = body.accountType;
+    const expiresAtInput = body.expiresAt;
+
+    if (accountType !== "USER" && accountType !== "ADMIN") {
+        return res.status(400).send({
+            message: 'Valid account type is required'
+        });
+    }
+
+    if (!expiresAtInput) {
+        return res.status(400).send({
+            message: 'Expiry date is required'
+        });
+    }
+
+    const expiresAt = new Date(expiresAtInput);
+    if (Number.isNaN(expiresAt.getTime())) {
+        return res.status(400).send({
+            message: 'Expiry date is invalid'
+        });
+    }
+
+    const token = text.rndStr(16);
+
+    await OneTimeRegistrationSchema.insertOne({
+        token,
+        accountType,
+        expiresAt
+    });
+
+    return res.status(201).send({
+        message: 'Registration token generated successfully',
+        token,
+        accountType,
+        expiresAt
     });
 })
 

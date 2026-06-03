@@ -4,24 +4,31 @@ nav {
 
     width: 100%;
 
-    background-color: #191919;
+    background-color: var(--surface-1);
 }
 
-nav > a {
+nav > a,
+nav > button {
     display: flex;
     justify-content: center;
     align-items: center;
     
     padding: 6px 8px;
     
-    color: #eee;
+    color: var(--page-fg);
     font-size: 16px;
     text-decoration: none;
     user-select: none;
 
+    background: none;
+    border: none;
+    font: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+
     &:hover {
-        background-color: #2ea150;
-        color: #000;
+        background-color: var(--accent);
+        color: var(--accent-fg);
     }
 }
 
@@ -41,12 +48,16 @@ nav > a.sensym-button::before {
     aspect-ratio: 1;
     height: 1.2em;
 
-    background-color: #111;
-    border: 1px solid #2ea150;
+    background-color: var(--surface-7);
+    border: 1px solid var(--accent);
     border-radius: 1em;
 }
 
 nav .spacer { flex: 1; }
+
+nav > button.theme-toggle-button {
+    text-transform: uppercase;
+}
 
 nav > a.profile-button {
     text-transform: capitalize;
