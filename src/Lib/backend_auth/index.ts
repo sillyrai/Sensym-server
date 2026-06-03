@@ -4,14 +4,16 @@ import AuthTokenSchema from "../mongoDB_models/AuthenticationTokenSchema_Schema"
 import UserSchema from "../mongoDB_models/User_Schema";
 
 export default async (req: Request, res: Response, next: Function) => {
-    let authHeader = req.headers['authorization'] || req.query.auth_token;
-    if(!authHeader) {
+    let authHeader = req.headers['authorization'];
+    let authToken = req.cookies?.auth_token || req.query.auth_token || authHeader;
+
+    if(!authToken) {
         return res.status(401).send({
             message: 'Authorization header is required'
         });
     }
 
-    let token = Array.isArray(authHeader) ? authHeader[0] : authHeader;
+    let token = Array.isArray(authToken) ? authToken[0] : authToken;
     if(typeof token !== 'string') {
         return res.status(401).send({
             message: 'Invalid authentication token'
@@ -23,9 +25,9 @@ export default async (req: Request, res: Response, next: Function) => {
     }
 
     // Legacy token flow: check persistent auth token collection first.
-    let authToken = await AuthTokenSchema.findOne({ token });
-    if(authToken) {
-        let user = await UserSchema.findById(authToken.userId);
+    let legacyAuthToken = await AuthTokenSchema.findOne({ token });
+    if(legacyAuthToken) {
+        let user = await UserSchema.findById(legacyAuthToken.userId);
         if(!user) {
             return res.status(401).send({
                 message: 'User not found'

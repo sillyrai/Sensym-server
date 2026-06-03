@@ -5,18 +5,26 @@ import UserSchema from '../Lib/mongoDB_models/User_Schema';
 const router = Router();
 
 router.get("/", async (req, res) => {
-    const user_role = req.cookies.auth.token.role;
+    try {
+        const user_role = req.cookies.auth.token.role;
 
-    const users = await UserSchema
-        .find({})
-        .limit(24);
+        const users = await UserSchema
+            .find({})
+            .limit(24);
 
-    res.render("page_users", {
-        styles: ["page_users.css"],
+        res.render("page_users", {
+            styles: ["page_users.css"],
 
-        users,
-        user_role
-    });
+            users,
+            user_role
+        });
+    } catch (err) {
+        console.error('Users page render failed:', err);
+        return res.status(500).render('error', {
+            styles: ["error.css"],
+            message: 'Failed to load users page'
+        });
+    }
 })
 
 export default router;

@@ -3,24 +3,38 @@ import IsAuthenticated from "../../Lib/backend_auth";
 import TextStuff from "../../Lib/TextStuff";
 import SensorSchema from "../../Lib/mongoDB_models/Sensor_Schema";
 import SensorDataSchema from "../../Lib/mongoDB_models/SensorData_Schema";
+import { validateShortText } from "../../Lib/validation";
 let router = Router();
 
 // Create a new sensor internally
 // It's token can be used to post data to the server from the actual sensor
 router.post('/newSensor', IsAuthenticated, async (req, res) => {
-    if(res.locals.user.userType !== 'ADMIN') {
-        return res.status(403).json({ error: 'Insufficient permissions' });
+    try {
+        if(res.locals.user.userType !== 'ADMIN') {
+            return res.status(403).json({ error: 'Insufficient permissions' });
+        }
+
+        let body = req.body || {};
+        let sensorName = body.sensor_name;
+
+        if(!sensorName) {
+            return res.status(400).json({ error: 'Sensor name is required' });
+        }
+
+        if (validateShortText(sensorName)) {
+            return res.status(400).json({ error: 'Sensor name must be 20 characters or less and can only contain letters, numbers, and underscores' });
+        }
+
+        let deviceToken = TextStuff.rndStr(16);
+        await SensorSchema.insertOne({
+            token: deviceToken,
+            name: sensorName
+        })
+        return res.redirect('/sensors');
+    } catch (err) {
+        console.error('Create sensor request failed:', err);
+        return res.status(500).json({ error: 'Failed to create sensor' });
     }
-
-    // Check if req.body contains 'sensor_name'
-
-    let deviceToken = TextStuff.rndStr(16);
-    let insertRes = await SensorSchema.insertOne({
-        token: deviceToken
-    })
-    return res.status(200).json({
-        token: deviceToken
-    });
 
     // at the end redirect back to '/sensors/<ID_of_new_sensor>'
 })
@@ -34,57 +48,67 @@ interface SensorDataItem {
 }
 
 router.post('/:sensorToken', async (req, res)=>{
-    const { sensorToken } = req.params;
+    try {
+        const { sensorToken } = req.params;
 
-    // check if sensor token even exists
-    const sensor = await SensorSchema.findOne({ token: sensorToken });
-    if(!sensor){ return res.status(404).json({ message: "Sensor not found" }); }
+        // check if sensor token even exists
+        const sensor = await SensorSchema.findOne({ token: sensorToken });
+        if(!sensor){ return res.status(404).json({ message: "Sensor not found" }); }
 
-    // process sensor data
-    /* << OLD >> *//*
-    SensorDataSchema.insertOne({
-        token: req.params.sensorToken,
-        dataType: req.body.type,
-        value: req.body.value
+        // process sensor data
+        /* << OLD >> *//*
+        SensorDataSchema.insertOne({
+            token: req.params.sensorToken,
+            dataType: req.body.type,
+            value: req.body.value
 
-    }).then(()=>{
-        return res.status(200).json({message: 'Data recorded successfully'});
-    }).catch((err)=>{
-        return res.status(500).json({message: 'Failed to record data', details: err});
-    })
-    */
-    const newData = (req.body as SensorDataItem[] || []).map((item:SensorDataItem) => ({
-        type: item.type,
-        value: item.value,
-        ...(item.name && { name: item.name })
-    }))
+        }).then(()=>{
+            return res.status(200).json({message: 'Data recorded successfully'});
+        }).catch((err)=>{
+            return res.status(500).json({message: 'Failed to record data', details: err});
+        })
+        */
+        const newData = (req.body as SensorDataItem[] || []).map((item:SensorDataItem) => ({
+            type: item.type,
+            value: item.value,
+            ...(item.name && { name: item.name })
+        }))
 
-    await SensorDataSchema.insertOne({
-        sensor: sensor.id,
-        data: newData,
-    }).then(()=>{
-        return res.status(200).json({ ok: 'data recorded successfully' });
-    }).catch((err)=>{
-        return res.status(500).json({ error: `failure to record data: ${err}` });
-    });
+        await SensorDataSchema.insertOne({
+            sensor: sensor.id,
+            data: newData,
+        }).then(()=>{
+            return res.status(200).json({ ok: 'data recorded successfully' });
+        }).catch((err)=>{
+            return res.status(500).json({ error: `failure to record data: ${err}` });
+        });
 
-    // Send out the new data
-    const io = req.app.get('socketio');
-    io.to(sensor.id).emit('new_sensor_data', {
-        data: newData,
-        createdAt: Date.now()
-    });
+        // Send out the new data
+        const io = req.app.get('socketio');
+        io.to(sensor.id).emit('new_sensor_data', {
+            data: newData,
+            createdAt: Date.now()
+        });
+    } catch (err) {
+        console.error('Sensor data post failed:', err);
+        return res.status(500).json({ message: 'Failed to record sensor data' });
+    }
 })
 
 router.delete('/:sensorToken', IsAuthenticated, async (req, res) => {
-    if(res.locals.user.userType !== 'ADMIN') {
-        return res.status(403).json({ error: 'Insufficient permissions' });
+    try {
+        if(res.locals.user.userType !== 'ADMIN') {
+            return res.status(403).json({ error: 'Insufficient permissions' });
+        }
+        let deleteRes = await SensorSchema.deleteOne({ token: req.params.sensorToken });
+        if(deleteRes.deletedCount === 0) {
+            return res.status(404).json({ error: 'Sensor not found' });
+        }
+        return res.status(200).json({ message: 'Sensor deleted successfully' });
+    } catch (err) {
+        console.error('Sensor delete failed:', err);
+        return res.status(500).json({ error: 'Failed to delete sensor' });
     }
-    let deleteRes = await SensorSchema.deleteOne({ token: req.params.sensorToken });
-    if(deleteRes.deletedCount === 0) {
-        return res.status(404).json({ error: 'Sensor not found' });
-    }
-    return res.status(200).json({ message: 'Sensor deleted successfully' });
 });
 
 /*

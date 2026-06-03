@@ -1,0 +1,1435 @@
+/home/rai/Desktop/sensym-server/src/Lib/backend_auth/index.ts
+[CODE]
+import { Request,Response } from "express";
+import jwt from "jsonwebtoken";
+import AuthTokenSchema from "../mongoDB_models/AuthenticationTokenSchema_Schema";
+import UserSchema from "../mongoDB_models/User_Schema";
+
+export default async (req: Request, res: Response, next: Function) => {
+    let authHeader = req.headers['authorization'];
+    let authToken = req.cookies?.auth_token || req.query.auth_token || authHeader;
+
+    if(!authToken) {
+        return res.status(401).send({
+            message: 'Authorization header is required'
+        });
+    }
+
+    let token = Array.isArray(authToken) ? authToken[0] : authToken;
+    if(typeof token !== 'string') {
+        return res.status(401).send({
+            message: 'Invalid authentication token'
+        });
+    }
+
+    if(token.toLowerCase().startsWith('bearer ')) {
+        token = token.slice(7).trim();
+    }
+
+    // Legacy token flow: check persistent auth token collection first.
+    let legacyAuthToken = await AuthTokenSchema.findOne({ token });
+    if(legacyAuthToken) {
+        let user = await UserSchema.findById(legacyAuthToken.userId);
+        if(!user) {
+            return res.status(401).send({
+                message: 'User not found'
+            });
+        }
+        res.locals.user = user;
+        return next();
+    }
+
+    // JWT flow: allow stateless tokens (same style used by frontend auth).
+    if(!process.env.JWT_SECRET) {
+        return res.status(401).send({
+            message: 'Server auth configuration missing'
+        });
+    }
+
+    let decoded: any;
+    try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+        return res.status(401).send({
+            message: 'Invalid authentication token'
+        });
+    }
+
+    let userId = typeof decoded === 'object' ? decoded.id : undefined;
+    let user = await UserSchema.findById(userId);
+    if(!user) {
+        return res.status(401).send({
+            message: 'User not found'
+        });
+    }
+    res.locals.user = user;
+    return next();
+}
+
+/home/rai/Desktop/sensym-server/src/Lib/database.ts
+[CODE]
+import mongoose from "mongoose";
+import { dateLog } from "./logging_utils";
+
+import dotenv from "dotenv";
+
+dotenv.config({quiet: true});
+
+const MONGODB_URI = process.env.MONGODB_URI;
+
+export default async function connectDB() {
+	try {
+		if (!MONGODB_URI) {
+			throw new Error('Missing required environment variables');
+		}
+		
+		await mongoose.connect(MONGODB_URI);
+		console.log(`\x1b[32m█ \x1b[37m[ ${dateLog()} ]\x1b[38;5;48m MongoDB connected successfully\x1b[0m`);
+        
+	} catch (error) {
+		console.log(`\x1b[34m█ \x1b[37m[ ${dateLog()} ]\x1b[38;5;48m MongoDB connection error:\x1b[0m`, error);
+		process.exit(1);
+	}
+};
+
+/home/rai/Desktop/sensym-server/src/Lib/frontend_auth/index.ts
+[CODE]
+import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+
+import UserSchema from '../mongoDB_models/User_Schema';
+
+export default async (req: Request, res: Response, next: Function) => {
+    const auth_token = req.cookies.auth_token || req.headers.authorization?.split(" ")[1];
+
+    if (!auth_token) { return res.redirect('/login'); }
+
+    if (!process.env.JWT_SECRET) { return res.redirect('/error'); }
+
+    jwt.verify(auth_token, process.env.JWT_SECRET, async (error:any, decoded:any) => {
+        if (error) {
+            console.error("JWT verification failed:", error);
+            return res.redirect('/error');
+        };
+
+        let user = await UserSchema.findOne({ _id: decoded.id });
+
+        if(!user) { return res.redirect('/login'); }
+
+        res.locals.userData = {
+            user: user.username,
+            role: user.userType
+        };
+        return next();
+    });
+}
+
+/home/rai/Desktop/sensym-server/src/Lib/logging_utils/index.ts
+[CODE]
+function dateLog() {
+    const date = new Date();
+
+    const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(date);
+    const dmy = new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+
+    return `${time} ${dmy}`;
+}
+
+
+function requestLog (req:any, res:any) {
+    const time = dateLog();
+    const type = req.method.toUpperCase();
+    const path = req.originalUrl;
+    const client = req.ip;
+    const status = res.statusCode;
+
+    const color = status >= 400 ? "31"
+        : status >= 300 ? "33"
+        : status >= 200 ? "34"
+        : "0";
+
+    console.log(`\x1b[${color}m█ \x1b[37m[ ${time} ]\x1b[32m ${client} [${type}] \x1b[${color}m${status}\x1b[37m '${path}'\x1b[0m`);
+}
+
+export { dateLog, requestLog };
+
+/home/rai/Desktop/sensym-server/src/Lib/mongoDB_models/AuthenticationTokenSchema_Schema.ts
+[CODE]
+import mongoose, { Schema } from "mongoose";
+import UserSchema from "./User_Schema";
+
+const AuthTokenSchema = new Schema({
+    token: { type: String, required: true, unique: true, index: true },
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    createdAt: { type: Date, default: Date.now, expires: '7d' }, // Token expires after 7 days
+})
+
+export default mongoose.model('AuthToken', AuthTokenSchema, 'authTokens');
+
+/home/rai/Desktop/sensym-server/src/Lib/mongoDB_models/OneTimeRegistration_Schema.ts
+[CODE]
+import mongoose, { Schema } from "mongoose";
+
+const OneTimeRegistrationSchema = new Schema({
+    token: { type: String, required: true },
+    accountType: { type: String, required: true, enum: ["USER", "ADMIN"] },
+    expiresAt: { type: Date, dwefault: () => new Date(Date.now() + 24 * 60 * 60 * 1000) }
+}, { 
+    timestamps: true, 
+    versionKey: false
+})
+
+// Automatically delete after expires
+OneTimeRegistrationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+// Index token for faster lookup
+OneTimeRegistrationSchema.index({ token: 1 });
+
+export default mongoose.model('OneTimeRegistration', OneTimeRegistrationSchema, 'oneTimeRegistrations');
+
+/home/rai/Desktop/sensym-server/src/Lib/mongoDB_models/Sensor_Schema.ts
+[CODE]
+import mongoose, { Schema } from "mongoose";
+
+const SensorSchema = new Schema({
+    token: { type: String, required: true, unique: true, index: true },
+    name: { type: String, default: 'Unnamed Sensor' },
+    createdAt: { type: Date, default: Date.now },
+})
+
+export default mongoose.model('Sensor', SensorSchema, 'sensors');
+
+/home/rai/Desktop/sensym-server/src/Lib/mongoDB_models/SensorData_Schema.ts
+[CODE]
+import mongoose, { Schema } from "mongoose";
+
+// < OLD > 
+/*
+const SensorDataSchema = new Schema({
+    token: { type: String, required: true },
+    dataType: { type: String, required: true },
+    value: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now },
+})
+*/
+
+const SensorDataSchema = new Schema({ 
+    sensor: { type: String, required: true },
+    data: [{
+        _id: false,
+        type: { type: String, required: true },
+        value: { type: String, required: true },
+        name: { type: String },
+    }],
+    createdAt: { type: Date, default: Date.now },
+})
+
+SensorDataSchema.index({ token: 1, createdAt: -1 });
+
+export default mongoose.model('SensorData', SensorDataSchema, 'sensorData');
+
+/home/rai/Desktop/sensym-server/src/Lib/mongoDB_models/User_Schema.ts
+[CODE]
+import mongoose, { Schema } from "mongoose";
+
+const UserSchema = new Schema({
+    username: { type: String, required: true, unique: true, index: true },
+    password: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now },
+    userType: { type: String, enum: ['USER', 'ADMIN'], default: 'USER' },
+})
+
+export default mongoose.model('User', UserSchema, 'users');
+
+/home/rai/Desktop/sensym-server/src/Lib/request_logging/index.ts
+[CODE]
+import { Request,Response } from "express";
+import { requestLog } from "../logging_utils";
+
+export default (req: Request, res: Response, next: Function) => {
+    res.on('finish', () => {
+        requestLog(req, res) 
+    });
+    next();
+}
+
+/home/rai/Desktop/sensym-server/src/Lib/serverIP.ts
+[CODE]
+import os from "os";
+
+export default function getLocalIP() {
+    const interfaces = os.networkInterfaces();
+
+    for (const name of Object.keys(interfaces)) {
+        const ifaces = interfaces[name];
+        if (!ifaces) continue;
+        for (const iface of ifaces) {
+            // Skip internal (127.0.0.1) and non-IPv4
+            if (iface.family === "IPv4" && !iface.internal) {
+                return iface.address;
+            }
+        }
+    }
+    return "Unable to determine IP";
+}
+
+/home/rai/Desktop/sensym-server/src/Lib/TextStuff.ts
+[CODE]
+import { createHash } from 'crypto';
+
+function sha256(input: string): string {
+    return createHash('sha256').update(input + process.env.SALT).digest('hex');
+}
+
+function rndStr(length: number): string {
+    const chars = 'abcedf1234567890';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}
+
+export default { sha256, rndStr }
+
+/home/rai/Desktop/sensym-server/src/Lib/URLNormalize.ts
+[CODE]
+import { Request,Response } from "express";
+
+export default (req: Request, res: Response, next: Function) => {
+    req.url.replace(/\/{2,}/g, '/'); next();
+}
+
+/home/rai/Desktop/sensym-server/src/Lib/validation.ts
+[CODE]
+function validateShortText(value: string): string | null {
+    if (value.length > 20) {
+        return 'Value must be 20 characters or less and can only contain letters, numbers, and underscores';
+    }
+
+    for (let i = 0; i < value.length; i++) {
+        const code = value.charCodeAt(i);
+
+        if (code >= 48 && code <= 57) { continue; }
+        if (code >= 65 && code <= 90) { continue; }
+        if (code >= 97 && code <= 122) { continue; }
+        if (code === 95) { continue; }
+
+        return 'Value must be 20 characters or less and can only contain letters, numbers, and underscores';
+    }
+
+    return null;
+}
+
+function validateStrongPassword(value: string): string | null {
+    if (value.length < 8) {
+        return 'Password must be at least 8 characters long, with at least 1 symbol, 1 uppercase character, 2 numbers, and 1 lowercase character';
+    }
+
+    let symbols = 0;
+    let uppercase = 0;
+    let numbers = 0;
+    let lowercase = 0;
+
+    for (let i = 0; i < value.length; i++) {
+        const code = value.charCodeAt(i);
+
+        if (code >= 48 && code <= 57) { numbers++; continue; }
+        if (code >= 65 && code <= 90) { uppercase++; continue; }
+        if (code >= 97 && code <= 122) { lowercase++; continue; }
+
+        symbols++;
+    }
+
+    if (symbols < 1) {
+        return 'Password must include at least 1 symbol';
+    }
+
+    if (uppercase < 1) {
+        return 'Password must include at least 1 uppercase character';
+    }
+
+    if (numbers < 2) {
+        return 'Password must include at least 2 numbers';
+    }
+
+    if (lowercase < 1) {
+        return 'Password must include at least 1 lowercase character';
+    }
+
+    return null;
+}
+
+export { validateShortText, validateStrongPassword };
+
+/home/rai/Desktop/sensym-server/src/Routes/admin/index.ts
+[CODE]
+import { Router } from "express";
+
+const router = Router();
+
+router.get("/", (req, res) => {
+    res.render("admin");
+})
+
+export default router;
+
+/home/rai/Desktop/sensym-server/src/Routes/analytics.ts
+[CODE]
+import { Router } from "express";
+
+const router = Router();
+
+router.get("/", async (req, res) => {
+    try {
+        res.render('analytics', {
+            styles: ["analytics_page.css"],
+            title: "Sensym | Analytics",
+        });
+    } catch (err) {
+        console.error('Analytics render failed:', err);
+        return res.status(500).render('error', {
+            styles: ["error.css"],
+            message: 'Failed to load analytics page'
+        });
+    }
+})
+
+export default router;
+
+/home/rai/Desktop/sensym-server/src/Routes/api/_login.ts
+[CODE]
+import { Router } from "express";
+import jwt from 'jsonwebtoken';
+import bcrypt from "bcrypt";
+
+import UserSchema from '../../Lib/mongoDB_models/User_Schema';
+
+const router = Router();
+
+// ------------------------- Login -------------------------
+
+// API Login POST endpoint
+router.post('/', async (req, res) => {
+    try {
+        let body = req.body || {};
+
+        // Parse 'user' and 'pass' and check if defined
+        let username = body.username
+        let password = body.password
+
+        if(!username || !password) {
+            return res.status(400).json({
+                error: "credentials not provided"
+            });
+        }
+
+        // Get user data
+        let user = await UserSchema.findOne({ username: username });
+
+        // Validate Username
+        if (!user) {
+            return res.status(401).json({
+                error: "invalid credentials"
+            });
+        }
+
+        // Compare password (bcrypt.compare returns a Promise)
+        const match = await bcrypt.compare(password, user.password);
+        if (!match) {
+            return res.status(401).json({
+                error: "invalid credentials"
+            });
+        }
+
+        // Sign an JWT authentication token
+        if (!process.env.JWT_SECRET) {
+            return res.status(401).json({
+                error: "server error"
+            });
+        }
+        const token = jwt.sign(
+            { 
+                id: user._id,
+                iat: Date.now()
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        // Put token with responses cookies
+        return res.json({
+            auth_token: token 
+        });
+    } catch (err) {
+        console.error('API login failed:', err);
+        return res.status(500).json({
+            error: "server error"
+        });
+    }
+});
+
+export default router;
+
+/home/rai/Desktop/sensym-server/src/Routes/api/_profile.ts
+[CODE]
+import {Router} from 'express';
+import bcrypt from "bcrypt";
+
+import text from '../../Lib/TextStuff';
+import UserSchema from '../../Lib/mongoDB_models/User_Schema';
+import IsAuthenticated from '../../Lib/backend_auth';
+import OneTimeRegistrationSchema from '../../Lib/mongoDB_models/OneTimeRegistration_Schema';
+import { validateShortText, validateStrongPassword } from '../../Lib/validation';
+
+const router = Router();
+
+router.get('/', IsAuthenticated ,async (req, res) => {
+    try {
+        return res.status(200).send({
+            message: 'User retrieved successfully',
+            user: res.locals.user
+        });
+    } catch (err) {
+        console.error('Profile lookup failed:', err);
+        return res.status(500).send({
+            message: 'Error retrieving user'
+        });
+    }
+})
+
+router.delete('/delete-account', IsAuthenticated, async (req, res) => {
+    try {
+        // Only Administrators can delete accounts.
+        if(res.locals.user.userType !== "ADMIN") {
+            return res.status(403).send({
+                message: 'Only administrators can delete accounts'
+            });
+        }
+
+        let body = req.body || {};
+        let userId = body.userId;
+
+        if(!userId) {
+            return res.status(400).send({
+                message: 'User ID is required'
+            });
+        }
+
+        let deleteResult = await UserSchema.deleteOne({ _id: userId });
+
+        if(deleteResult.deletedCount === 0) {
+            return res.status(404).send({
+                message: 'User not found'
+            });
+        }
+
+        return res.status(200).send({
+            message: 'User deleted successfully'
+        });
+    } catch (err) {
+        console.error('Delete account request failed:', err);
+        return res.status(500).send({
+            message: 'Error deleting user'
+        });
+    }
+})
+
+// Yes we technically could've done the following end points in 
+// One big post request or whatever
+// But our grade depends on how much lines of code we have 💀💀💀 so we're doing it the inefficient way
+
+// This guy....
+// Fine, fine, whatever
+
+router.post('/change-username', IsAuthenticated, async (req, res) => {
+    try {
+        let body = req.body || {};
+        let newUsername = body.new_username;
+        
+        if(!newUsername) { 
+            return res.status(400).send({
+                message: 'New username is required'
+            });
+        }
+
+        if (validateShortText(newUsername)) {
+            return res.status(400).send({
+                message: 'Username must be 20 characters or less and can only contain letters, numbers, and underscores'
+            });
+        }
+
+        let exists = await UserSchema.findOne({ username: newUsername });
+        if(exists) {
+            return res.status(400).send({
+                message: 'Username already exists'
+            });
+        }
+
+        let updateResult = await UserSchema.updateOne({ _id: res.locals.user._id }, { username: newUsername });
+
+        if(updateResult.modifiedCount === 0) {
+            return res.status(500).send({
+                message: 'Error updating username'
+            });
+        }
+
+        return res.status(200).send({
+            message: 'Username updated successfully'
+        });
+    } catch (err) {
+        console.error('Change username request failed:', err);
+        return res.status(500).send({
+            message: 'Error updating username'
+        });
+    }
+})
+
+router.post('/change-password', IsAuthenticated, async (req, res) => {
+    try {
+        let body = req.body || {};
+        let new_password = body.new_password;
+        
+        if(!new_password) { 
+            return res.status(400).send({
+                message: 'New password is required'
+            });
+        }
+
+        if (validateStrongPassword(new_password)) {
+            return res.status(400).send({
+                message: 'Password must be at least 8 characters long, with at least 1 symbol, 1 uppercase character, 2 numbers, and 1 lowercase character'
+            });
+        }
+
+        const password_salt = await bcrypt.genSalt(10);
+        const hashed_new_password = await bcrypt.hash(new_password, password_salt);
+
+        const updateResult = await UserSchema.updateOne(
+            { _id: res.locals.user._id }, 
+            { password: hashed_new_password }
+        );
+
+        if(updateResult.modifiedCount === 0) {
+            return res.status(500).send({
+                message: 'Error updating password'
+            });
+        }
+
+        return res.status(200).send({
+            message: 'Password updated successfully'
+        });
+    } catch (err) {
+        console.error('Change password request failed:', err);
+        return res.status(500).send({
+            message: 'Error updating password'
+        });
+    }
+})
+
+router.post('/generate-registration-token', IsAuthenticated, async (req, res) => {
+    try {
+        if (res.locals.user.userType !== "ADMIN") {
+            return res.status(403).send({
+                message: 'Only administrators can generate registration tokens'
+            });
+        }
+
+        const body = req.body || {};
+        const accountType = body.accountType;
+        const expiresAtInput = body.expiresAt;
+
+        if (accountType !== "USER" && accountType !== "ADMIN") {
+            return res.status(400).send({
+                message: 'Valid account type is required'
+            });
+        }
+
+        if (!expiresAtInput) {
+            return res.status(400).send({
+                message: 'Expiry date is required'
+            });
+        }
+
+        const expiresAt = new Date(expiresAtInput);
+        if (Number.isNaN(expiresAt.getTime())) {
+            return res.status(400).send({
+                message: 'Expiry date is invalid'
+            });
+        }
+
+        const token = text.rndStr(16);
+
+        await OneTimeRegistrationSchema.insertOne({
+            token,
+            accountType,
+            expiresAt
+        });
+
+        return res.status(201).send({
+            message: 'Registration token generated successfully',
+            token,
+            accountType,
+            expiresAt
+        });
+    } catch (err) {
+        console.error('Generate registration token request failed:', err);
+        return res.status(500).send({
+            message: 'Error generating registration token'
+        });
+    }
+})
+
+export default router;
+
+/home/rai/Desktop/sensym-server/src/Routes/api/_sensors.ts
+[CODE]
+import { Router } from "express";
+import IsAuthenticated from "../../Lib/backend_auth";
+import TextStuff from "../../Lib/TextStuff";
+import SensorSchema from "../../Lib/mongoDB_models/Sensor_Schema";
+import SensorDataSchema from "../../Lib/mongoDB_models/SensorData_Schema";
+import { validateShortText } from "../../Lib/validation";
+let router = Router();
+
+// Create a new sensor internally
+// It's token can be used to post data to the server from the actual sensor
+router.post('/newSensor', IsAuthenticated, async (req, res) => {
+    try {
+        if(res.locals.user.userType !== 'ADMIN') {
+            return res.status(403).json({ error: 'Insufficient permissions' });
+        }
+
+        let body = req.body || {};
+        let sensorName = body.sensor_name;
+
+        if(!sensorName) {
+            return res.status(400).json({ error: 'Sensor name is required' });
+        }
+
+        if (validateShortText(sensorName)) {
+            return res.status(400).json({ error: 'Sensor name must be 20 characters or less and can only contain letters, numbers, and underscores' });
+        }
+
+        let deviceToken = TextStuff.rndStr(16);
+        await SensorSchema.insertOne({
+            token: deviceToken,
+            name: sensorName
+        })
+        return res.redirect('/sensors');
+    } catch (err) {
+        console.error('Create sensor request failed:', err);
+        return res.status(500).json({ error: 'Failed to create sensor' });
+    }
+
+    // at the end redirect back to '/sensors/<ID_of_new_sensor>'
+})
+
+// Post sensor data
+
+interface SensorDataItem {
+    type: string;
+    value: string;
+    name?: string;
+}
+
+router.post('/:sensorToken', async (req, res)=>{
+    try {
+        const { sensorToken } = req.params;
+
+        // check if sensor token even exists
+        const sensor = await SensorSchema.findOne({ token: sensorToken });
+        if(!sensor){ return res.status(404).json({ message: "Sensor not found" }); }
+
+        // process sensor data
+        /* << OLD >> *//*
+        SensorDataSchema.insertOne({
+            token: req.params.sensorToken,
+            dataType: req.body.type,
+            value: req.body.value
+
+        }).then(()=>{
+            return res.status(200).json({message: 'Data recorded successfully'});
+        }).catch((err)=>{
+            return res.status(500).json({message: 'Failed to record data', details: err});
+        })
+        */
+        const newData = (req.body as SensorDataItem[] || []).map((item:SensorDataItem) => ({
+            type: item.type,
+            value: item.value,
+            ...(item.name && { name: item.name })
+        }))
+
+        await SensorDataSchema.insertOne({
+            sensor: sensor.id,
+            data: newData,
+        }).then(()=>{
+            return res.status(200).json({ ok: 'data recorded successfully' });
+        }).catch((err)=>{
+            return res.status(500).json({ error: `failure to record data: ${err}` });
+        });
+
+        // Send out the new data
+        const io = req.app.get('socketio');
+        io.to(sensor.id).emit('new_sensor_data', {
+            data: newData,
+            createdAt: Date.now()
+        });
+    } catch (err) {
+        console.error('Sensor data post failed:', err);
+        return res.status(500).json({ message: 'Failed to record sensor data' });
+    }
+})
+
+router.delete('/:sensorToken', IsAuthenticated, async (req, res) => {
+    try {
+        if(res.locals.user.userType !== 'ADMIN') {
+            return res.status(403).json({ error: 'Insufficient permissions' });
+        }
+        let deleteRes = await SensorSchema.deleteOne({ token: req.params.sensorToken });
+        if(deleteRes.deletedCount === 0) {
+            return res.status(404).json({ error: 'Sensor not found' });
+        }
+        return res.status(200).json({ message: 'Sensor deleted successfully' });
+    } catch (err) {
+        console.error('Sensor delete failed:', err);
+        return res.status(500).json({ error: 'Failed to delete sensor' });
+    }
+});
+
+/*
+router.post('/:sensorToken/heartbeat', async (req, res) => {
+    let sensorToken = req.params.sensorToken;
+    if(!sensorToken) {
+        return res.status(400).json({ message: 'Sensor token is required' });
+    }
+    
+    let sensor = await SensorSchema.findOne({ token: sensorToken });
+    if(!sensor) {
+        return res.status(404).json({ message: 'Sensor not found' });
+    }
+    
+    // TODO: Unsure how to proceed from here, Ghoosts todo list wasnt very clear on this part.
+});
+*/
+
+export default router;
+
+/home/rai/Desktop/sensym-server/src/Routes/api/_serverData.ts
+[CODE]
+import { Router } from "express";
+
+import serverIP from "../../Lib/serverIP";
+
+const router = Router();
+
+router.get("/", (req, res) => {
+    const ip = serverIP();
+
+    res.json({
+        ip
+    });
+});
+
+export default router;
+
+/home/rai/Desktop/sensym-server/src/Routes/api/index.ts
+[CODE]
+import {Router} from 'express';
+import sensors_route from './_sensors';
+import server_info_route from './_serverData';
+import profile_route from './_profile';
+import login_route from './_login';
+
+const router = Router();
+router.use('/profile', profile_route);
+router.use('/sensors', sensors_route);
+router.use('/server', server_info_route);
+router.use('/login', login_route);
+
+export default router;
+
+/home/rai/Desktop/sensym-server/src/Routes/data.ts
+[CODE]
+/*
+const data = await SensorDataSchema.aggregate([
+    {
+        $lookup: {
+            from: "sensors",          // collection name in MongoDB
+            localField: "token",      // field in data collection
+            foreignField: "token",    // field in sensors collection
+            as: "sensor"
+        }
+    },
+    {
+        $unwind: "$sensor"          // convert array to object
+    },
+    {
+        $project: {
+            token: 1,
+            dataType: 1,
+            value: 1,
+            createdAt: 1,
+            name: "$sensor.name"      // include sensor name
+        }
+    },
+    {
+        $sort: { createdAt: -1 }     // earliest first
+    },
+    {
+        $limit: 100                  // limit results to 100 records
+    }
+]);
+*/
+
+/home/rai/Desktop/sensym-server/src/Routes/profile.ts
+[CODE]
+import { Router } from "express";
+
+const router = Router();
+
+router.get("/", (req, res) => {
+    res.render("profile", {
+        styles: ["page_profile.css"],
+        title: "Profile",
+
+        user: res.locals.userData.user,
+        role: res.locals.userData.role,
+
+        auth_token: req.cookies.auth_token
+    });
+})
+
+export default router;
+
+/home/rai/Desktop/sensym-server/src/Routes/public/_error.ts
+[CODE]
+import { Router } from "express";
+
+const router = Router();
+
+// ------------------------- Error -------------------------
+
+router.get("/", (req, res) => { 
+    res.render("error", { 
+        styles:["error.css"],
+        title: "Sensym | ERROR",
+
+        type: 101,
+        message: "Alan, we are SO FUCKED"
+    }); 
+});
+
+export default router;
+
+/home/rai/Desktop/sensym-server/src/Routes/public/_login.ts
+[CODE]
+import { Router } from "express";
+import jwt from 'jsonwebtoken';
+import bcrypt from "bcrypt";
+
+import UserSchema from '../../Lib/mongoDB_models/User_Schema';
+
+const router = Router();
+
+// ------------------------- Login -------------------------
+
+// Login page
+router.get('/', (req, res)=>{
+    const auth_token = req.cookies.auth_token;
+
+    if (auth_token) { return res.redirect('/profile'); }
+
+    res.render('_auth/login', {
+        styles: ["auth_pages.css"],
+        title: "Sensym | Login",
+    })
+});
+
+// Login POST endpoint
+router.post('/', async (req, res) => {
+    try {
+        let body = req.body || {};
+
+        // Parse 'user' and 'pass' and check if defined
+        let username = body.user
+        let password = body.pass
+
+        if(!username || !password) {
+            return res.status(400).render("_auth/login", {
+                styles: ["auth_pages.css"],
+                message: { 
+                    text: "Username and/or password are required",
+                    type: "info" 
+                }
+            });
+        }
+
+        // Get user data
+        let user = await UserSchema.findOne({ username: username });
+
+        // Validate Username
+        if (!user) {
+            return res.status(401).render("_auth/login", {
+                styles: ["auth_pages.css"],
+                message: { 
+                    text: "Invalid username and/or password",
+                    type: "info" 
+                }
+            });
+        }
+
+        // Compare password (bcrypt.compare returns a Promise)
+        const match = await bcrypt.compare(password, user.password);
+        if (!match) {
+            return res.status(401).render("_auth/login", {
+                styles: ["auth_pages.css"],
+                message: { 
+                    text: "Invalid username and/or password",
+                    type: "info" 
+                }
+            });
+        }
+
+        // Sign an JWT authentication token
+        if (!process.env.JWT_SECRET) {
+            return res.status(401).render("_auth/login", {
+                styles: ["auth_pages.css"],
+                message: { 
+                    text: "Server error",
+                    type: "error" 
+                } 
+            });
+        }
+        const token = jwt.sign(
+            { 
+                id: user._id,
+                iat: Date.now()
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        // Put token with responses cookies
+        res.cookie('auth_token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 60 * 60 * 1000 // 1 hour
+        });
+
+        return res.redirect('/');
+    } catch (err) {
+        console.error('Login request failed:', err);
+        return res.status(500).render("_auth/login", {
+            styles: ["auth_pages.css"],
+            message: {
+                text: "An unexpected error occurred while logging in",
+                type: "error"
+            }
+        });
+    }
+});
+
+export default router;
+
+/home/rai/Desktop/sensym-server/src/Routes/public/_register.ts
+[CODE]
+import { Router } from "express";
+import bcrypt from "bcrypt";
+
+import UserSchema from '../../Lib/mongoDB_models/User_Schema';
+import AuthTokenSchema from '../../Lib/mongoDB_models/OneTimeRegistration_Schema';
+import { validateShortText, validateStrongPassword } from '../../Lib/validation';
+
+const router = Router();
+
+// ------------------------- Register -------------------------
+
+// Register page
+router.get('/', (req, res) => {
+    const auth_token = req.cookies.auth_token;
+
+    if (auth_token) { return res.redirect('/profile'); }
+
+    res.render('_auth/register', {
+        styles: ["auth_pages.css"],
+        url_registration_code: ""
+    })
+});
+
+// Register page + code
+router.get('/:registration_code', (req, res) => {
+    const reg_code = req.params.registration_code;
+    const auth_token = req.cookies.auth_token;
+
+    if (auth_token) { return res.redirect('/profile'); }
+
+    res.render('_auth/register', {
+        styles: ["auth_pages.css"],
+        title: "Sensym | Register",
+
+        url_registration_code: reg_code
+    })
+});
+
+// Register POST endpoint
+router.post('/', async (req, res) => {
+    try {
+        let body = req.body || {};
+
+        const authTokenCheck = await AuthTokenSchema
+            .findOne({token: body.registration_code})
+            .lean()
+
+        if (!authTokenCheck) {
+            return res.status(400).send({
+                message: 'Invalid auth token'
+            });
+        }
+
+        let username = body.user
+        let password = body.pass
+
+        if(!username || !password) {
+            return res.status(400).send({
+                message: 'Username and/or password are required'
+            });
+        }
+
+        if (validateShortText(username)) {
+            return res.status(400).send({
+                message: 'Username must be 20 characters or less and can only contain letters, numbers, and underscores'
+            });
+        }
+
+        if (validateShortText(body.registration_code)) {
+            return res.status(400).send({
+                message: 'Registration code must be 20 characters or less and can only contain letters, numbers, and underscores'
+            });
+        }
+
+        if (validateStrongPassword(password)) {
+            return res.status(400).send({
+                message: 'Password must be at least 8 characters long, with at least 1 symbol, 1 uppercase character, 2 numbers, and 1 lowercase character'
+            });
+        }
+
+        const exists = await UserSchema.findOne({ username: username });
+        if(exists) {
+            return res.status(400).send({
+                message: 'Username already exists'
+            });
+        }
+
+        const password_salt = await bcrypt.genSalt(10);
+        const hashed_password = await bcrypt.hash(password, password_salt);
+
+        const saveResult = await UserSchema.insertOne({
+            username: username,
+            password: hashed_password
+        });
+
+        if(!saveResult) {
+            return res.status(500).send({
+                message: 'Error saving user'
+            });
+        }
+
+        await AuthTokenSchema.findOneAndDelete({token: body.registration_code});
+
+        return res.redirect('/login');
+    } catch (err) {
+        console.error('Registration request failed:', err);
+        return res.status(500).send({
+            message: 'An unexpected error occurred while registering user'
+        });
+    }
+});
+
+export default router;
+
+/home/rai/Desktop/sensym-server/src/Routes/public/index.ts
+[CODE]
+import { Router } from "express";
+
+// ------------------------- Routes -------------------------
+
+import login_router from "./_login";
+import register_router from "./_register";
+import error_router from "./_error";
+
+const router = Router();
+
+router.use("/login", login_router);
+router.use("/register", register_router);
+router.use("/error", error_router);
+
+export default router;
+
+/home/rai/Desktop/sensym-server/src/Routes/sensors.ts
+[CODE]
+import { Router } from "express";
+
+import SensorSchema from "../Lib/mongoDB_models/Sensor_Schema";
+import SensorDataSchema from "../Lib/mongoDB_models/SensorData_Schema";
+
+const router = Router();
+
+router.get("/", async (req, res) => {
+    try {
+        const data = await SensorSchema.find({}).limit(24);
+
+        res.render('_sensors/sensors', {
+            styles: ["sensors_page.css"],
+            title: "Sensym | Sensors",
+
+            sensors: data
+        });
+    } catch (err) {
+        console.error('Sensors list render failed:', err);
+        return res.status(500).render('error', {
+            styles: ["error.css"],
+            message: 'Failed to load sensors'
+        });
+    }
+})
+
+//-// This '/add' route MUST BE before '/:sensor_id' <-- IMPORTANT IMPORTANT //-//
+router.get("/add", async (req, res) => {    
+    try {
+        res.render('_sensors/page_add_sensor', {
+            styles: ["page_add_sensor.css"],
+            title: "Sensym | Add Sensor",
+            authToken: req.cookies.auth_token || "",
+        });
+    } catch (err) {
+        console.error('Add sensor page render failed:', err);
+        return res.status(500).render('error', {
+            styles: ["error.css"],
+            message: 'Failed to load add sensor page'
+        });
+    }
+})
+
+router.get("/:sensor_id", async (req, res) => {
+    try {
+        const sensor_id = req.params.sensor_id;
+
+        const sensor = await SensorSchema.findOne({ _id: sensor_id });
+        if (!sensor) {
+            return res.render('sensor_info', {
+                styles: ["sensor_info_page.css"],
+            });
+        }
+
+        const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+        const data = await SensorDataSchema
+            .find({ sensor: sensor.id, createdAt: {$gte: thirtyMinutesAgo}})
+            .select("data createdAt -_id")
+            .sort({ createdAt: -1 });
+        const allData = await SensorDataSchema
+            .find({ sensor: sensor.id })
+            .select("data createdAt -_id")
+            .sort({ createdAt: 1 });
+
+        res.render('_sensors/sensor_info', {
+            styles: ["sensor_info_page.css"],
+            title: "Sensym | Sensor",
+            
+            sensor,
+            data,
+            allData,
+
+            timeFormat: { hour: "numeric", minute: "numeric" },
+            dateFormat: { year: "numeric", month: "numeric", day: "numeric" },
+
+            dataTimeFormat: { hour: "numeric", minute: "numeric", second: "numeric" },
+            dataDateFormat: { year: "numeric", month: "numeric", day: "numeric" }
+        });
+    } catch (err) {
+        console.error('Sensor detail render failed:', err);
+        return res.status(500).render('error', {
+            styles: ["error.css"],
+            message: 'Failed to load sensor details'
+        });
+    }
+})
+
+export default router;
+
+/home/rai/Desktop/sensym-server/src/Routes/users.ts
+[CODE]
+import { Router } from "express";
+
+import UserSchema from '../Lib/mongoDB_models/User_Schema';
+
+const router = Router();
+
+router.get("/", async (req, res) => {
+    try {
+        const user_role = req.cookies.auth.token.role;
+
+        const users = await UserSchema
+            .find({})
+            .limit(24);
+
+        res.render("page_users", {
+            styles: ["page_users.css"],
+
+            users,
+            user_role
+        });
+    } catch (err) {
+        console.error('Users page render failed:', err);
+        return res.status(500).render('error', {
+            styles: ["error.css"],
+            message: 'Failed to load users page'
+        });
+    }
+})
+
+export default router;
+
+/home/rai/Desktop/sensym-server/src/server.ts
+[CODE]
+import express from "express";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+
+// ------------------------- Module import -------------------------
+
+import connectDB from "./Lib/database";
+import { dateLog } from "./Lib/logging_utils";
+import auth from "./Lib/frontend_auth";
+import RequestLogger from "./Lib/request_logging";
+import URLNormalize from "./Lib/URLNormalize";
+
+// ------------------------- Route import -------------------------
+
+import public_route from "./Routes/public";
+
+import sensor_route from "./Routes/sensors";
+import analytics_route from "./Routes/analytics";
+import users_route from "./Routes/users";
+import profile_route from "./Routes/profile";
+
+import admin_route from "./Routes/admin";
+
+import api_route from "./Routes/api";
+
+// ------------------------- App setup -------------------------
+
+dotenv.config({quiet: true});
+
+let app = express();
+const httpServer = createServer(app); // Create native HTTP server
+const io = new Server(httpServer);    // Tie Socket.IO to the HTTP server
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cookieParser());
+app.use(express.static("src/Public"));
+
+app.set('view engine', 'ejs');
+app.set('views', 'src/Views'); // pls pls just do it
+app.set('socketio', io); // holy moly
+
+// ------------------------- App middleware -------------------------
+
+app.use(URLNormalize);
+app.use(RequestLogger);
+
+// ------------------------- WebSockets -------------------------
+
+io.on('connection', (socket) => {
+    // Client sends the unique sensor token to join a room
+    socket.on('live_sensor_data_flow', (sensorToken: string) => {
+        socket.join(sensorToken);
+        // console.log(`User ${socket.id} joined room for sensor: ${sensorToken}`);
+    });
+
+    socket.on('disconnect', () => {
+        // console.log(`User ${socket.id} disconnected`);
+    });
+});
+
+// ------------------------- App Routes-------------------------
+
+app.use('/', public_route);
+
+app.get('/', auth, (req, res) => {
+    res.render('index', {
+        styles: ["home_page.css"]
+    });
+});
+
+app.use("/sensors", auth, sensor_route );
+app.use("/analytics", auth, analytics_route );
+app.use("/users", auth, users_route );
+app.use("/profile", auth, profile_route );
+
+app.use('/api', api_route);
+
+app.use((err: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error(`\x1b[31m█ \x1b[37m[ ${dateLog()} ]\x1b[31m Unhandled request error: \x1b[0m`, err);
+
+    if (res.headersSent) {
+        return next(err);
+    }
+
+    return res.status(500).render('error', {
+        styles: ["error.css"],
+        message: 'An unexpected server error occurred'
+    });
+});
+
+import User_Schema from "./Lib/mongoDB_models/User_Schema";
+import OneTimeRegistration_Schema from "./Lib/mongoDB_models/OneTimeRegistration_Schema";
+
+async function handleNoAccounts() { // Handle when there are no accounts in the database (first time running)
+    try {
+        // Check if there are any accounts in the database
+        const userCount = await User_Schema.countDocuments();
+        if(userCount>0) return;
+
+        // Create a preset registration token for the first account (expires in 7 days)
+        await OneTimeRegistration_Schema.insertOne({
+            token: "ADMIN_TOKEN",
+            expiresAt: new Date(Date.now() + 7*24*60*60*1000), // 7 days from now
+            accountType: "ADMIN"
+        })
+        console.log(`\x1b[33m█ \x1b[37m[ ${dateLog()} ]\x1b[33m No accounts found. Created one-time registration token: \x1b[38;5;99mADMIN_TOKEN\x1b[0m`);
+    } catch (err) {
+        console.error(`\x1b[31m█ \x1b[37m[ ${dateLog()} ]\x1b[31m Failed to seed first account token: \x1b[0m${err}`);
+        throw err;
+    }
+}
+
+// ------------------------- App start -------------------------
+const serverStart = async () => {
+    try {
+        const { NODE_ENV, PORT, JWT_SECRET } = process.env;
+        if (!NODE_ENV || !PORT) { throw new Error('Missing required environment variables'); }
+        if (!JWT_SECRET) { throw new Error('Missing JWT_SECRET variable'); }
+
+        // Cleans terminal
+        console.log('\x1Bc'); console.clear();
+
+        // Connect to database
+        await connectDB();
+
+        await handleNoAccounts();
+        // Start the server
+        httpServer.listen(PORT, () => {
+            console.log(`\x1b[32m█ \x1b[37m[ ${dateLog()} ]\x1b[38;5;27m App starting in \x1b[38;5;99m${NODE_ENV}\x1b[38;5;27m mode on port \x1b[38;5;99m${PORT}\x1b[0m`);
+        });
+
+    } catch (err) {
+        console.error(`\x1b[31m█ \x1b[37m[ ${dateLog()} ]\x1b[31m Startup failed: \x1b[0m${err}`);
+        process.exit(1);
+    }
+}; serverStart();

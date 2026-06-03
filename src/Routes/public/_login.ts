@@ -22,76 +22,87 @@ router.get('/', (req, res)=>{
 
 // Login POST endpoint
 router.post('/', async (req, res) => {
-    let body = req.body || {};
+    try {
+        let body = req.body || {};
 
-    // Parse 'user' and 'pass' and check if defined
-    let username = body.user
-    let password = body.pass
+        // Parse 'user' and 'pass' and check if defined
+        let username = body.user
+        let password = body.pass
 
-    if(!username || !password) {
-        return res.status(400).render("_auth/login", {
+        if(!username || !password) {
+            return res.status(400).render("_auth/login", {
+                styles: ["auth_pages.css"],
+                message: { 
+                    text: "Username and/or password are required",
+                    type: "info" 
+                }
+            });
+        }
+
+        // Get user data
+        let user = await UserSchema.findOne({ username: username });
+
+        // Validate Username
+        if (!user) {
+            return res.status(401).render("_auth/login", {
+                styles: ["auth_pages.css"],
+                message: { 
+                    text: "Invalid username and/or password",
+                    type: "info" 
+                }
+            });
+        }
+
+        // Compare password (bcrypt.compare returns a Promise)
+        const match = await bcrypt.compare(password, user.password);
+        if (!match) {
+            return res.status(401).render("_auth/login", {
+                styles: ["auth_pages.css"],
+                message: { 
+                    text: "Invalid username and/or password",
+                    type: "info" 
+                }
+            });
+        }
+
+        // Sign an JWT authentication token
+        if (!process.env.JWT_SECRET) {
+            return res.status(401).render("_auth/login", {
+                styles: ["auth_pages.css"],
+                message: { 
+                    text: "Server error",
+                    type: "error" 
+                } 
+            });
+        }
+        const token = jwt.sign(
+            { 
+                id: user._id,
+                iat: Date.now()
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        // Put token with responses cookies
+        res.cookie('auth_token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 60 * 60 * 1000 // 1 hour
+        });
+
+        return res.redirect('/');
+    } catch (err) {
+        console.error('Login request failed:', err);
+        return res.status(500).render("_auth/login", {
             styles: ["auth_pages.css"],
-            message: { 
-                text: "Username and/or password are required",
-                type: "info" 
+            message: {
+                text: "An unexpected error occurred while logging in",
+                type: "error"
             }
         });
     }
-
-    // Get user data
-    let user = await UserSchema.findOne({ username: username });
-
-    // Validate Username
-    if (!user) {
-        return res.status(401).render("_auth/login", {
-            styles: ["auth_pages.css"],
-            message: { 
-                text: "Invalid username and/or password",
-                type: "info" 
-            }
-        });
-    }
-
-    // Compare password (bcrypt.compare returns a Promise)
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-        return res.status(401).render("_auth/login", {
-            styles: ["auth_pages.css"],
-            message: { 
-                text: "Invalid username and/or password",
-                type: "info" 
-            }
-        });
-    }
-
-    // Sign an JWT authentication token
-    if (!process.env.JWT_SECRET) {
-        return res.status(401).render("_auth/login", {
-            styles: ["auth_pages.css"],
-            message: { 
-                text: "Server error",
-                type: "error" 
-            } 
-        });
-    }
-    const token = jwt.sign(
-        { 
-            id: user._id,
-            iat: Date.now()
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '1h' }
-    );
-
-    // Put token with responses cookies
-    res.cookie('auth_token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 60 * 60 * 1000 // 1 hour
-    });
-
-    return res.redirect('/');
 });
 
 export default router;

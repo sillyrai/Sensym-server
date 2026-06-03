@@ -64,12 +64,6 @@ io.on('connection', (socket) => {
 
 // ------------------------- App Routes-------------------------
 
-// Other deeper ones are located (such as /api/auth) in their respective files (i.e /api/index.ts) ????????? ok whatever ghoost 
-// https://imgur.com/a/L5rytts
-//
-// WTF is this ^^^^ ???? What?
-// - Ghoost
-
 app.use('/', public_route);
 
 app.get('/', auth, (req, res) => {
@@ -85,21 +79,39 @@ app.use("/profile", auth, profile_route );
 
 app.use('/api', api_route);
 
+app.use((err: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error(`\x1b[31m█ \x1b[37m[ ${dateLog()} ]\x1b[31m Unhandled request error: \x1b[0m`, err);
+
+    if (res.headersSent) {
+        return next(err);
+    }
+
+    return res.status(500).render('error', {
+        styles: ["error.css"],
+        message: 'An unexpected server error occurred'
+    });
+});
+
 import User_Schema from "./Lib/mongoDB_models/User_Schema";
 import OneTimeRegistration_Schema from "./Lib/mongoDB_models/OneTimeRegistration_Schema";
 
 async function handleNoAccounts() { // Handle when there are no accounts in the database (first time running)
-    // Check if there are any accounts in the database
-    const userCount = await User_Schema.countDocuments();
-    if(userCount>0) return;
+    try {
+        // Check if there are any accounts in the database
+        const userCount = await User_Schema.countDocuments();
+        if(userCount>0) return;
 
-    // Create a preset registration token for the first account (expires in 7 days)
-    OneTimeRegistration_Schema.insertOne({
-        token: "ADMIN_TOKEN",
-        expiresAt: new Date(Date.now() + 7*24*60*60*1000), // 7 days from now
-        accountType: "ADMIN"
-    })
-    console.log(`\x1b[33m█ \x1b[37m[ ${dateLog()} ]\x1b[33m No accounts found. Created one-time registration token: \x1b[38;5;99mADMIN_TOKEN\x1b[0m`);
+        // Create a preset registration token for the first account (expires in 7 days)
+        await OneTimeRegistration_Schema.insertOne({
+            token: "ADMIN_TOKEN",
+            expiresAt: new Date(Date.now() + 7*24*60*60*1000), // 7 days from now
+            accountType: "ADMIN"
+        })
+        console.log(`\x1b[33m█ \x1b[37m[ ${dateLog()} ]\x1b[33m No accounts found. Created one-time registration token: \x1b[38;5;99mADMIN_TOKEN\x1b[0m`);
+    } catch (err) {
+        console.error(`\x1b[31m█ \x1b[37m[ ${dateLog()} ]\x1b[31m Failed to seed first account token: \x1b[0m${err}`);
+        throw err;
+    }
 }
 
 // ------------------------- App start -------------------------
