@@ -1,31 +1,55 @@
 main {
   display: flex;
-  justify-content: center;
-  padding: 8px;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 20px 16px;
+  gap: 16px;
+  overflow: hidden;
 }
 
-.section {
+.analytics_action_bar {
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+  height: fit-content;
+  gap: 12px;
+}
+
+.analytics_filters {
+  flex: 1;
+  display: flex;
+  background-color: var(--surface-2);
+  border-radius: 8px;
+}
+
+.new_analytic_form_holder {
+  width: fit-content;
+  padding: 6px 12px;
+  background-color: var(--surface-2);
+  border-radius: 8px;
+}
+.new_analytic_form_holder form {
+  display: flex;
+  gap: 12px;
+}
+.new_analytic_form_holder form > div {
   display: flex;
   flex-direction: column;
-  padding: 8px;
-  max-height: 280px;
-  width: 100%;
+  gap: 4px;
+}
+.new_analytic_form_holder form .form_title {
   height: 100%;
-  background-color: var(--surface-1);
-  overflow: none;
+}
+.new_analytic_form_holder form .input_label {
+  color: var(--text-muted);
+  font-size: 14px;
 }
 
-.chart {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border: 2px solid var(--border-strong);
-}
-
-.data-line {
-  fill: none;
-  stroke: green;
-  stroke-width: 2;
+.analytics-list {
+  flex: 1;
+  background-color: var(--surface-2);
+  border-radius: 8px;
 }
 
 /*# sourceMappingURL=analytics_page.css.map */

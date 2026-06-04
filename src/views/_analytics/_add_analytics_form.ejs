@@ -1,23 +1,29 @@
 <form id="new-analytics-form">
-    <p class="form_title">New analytics</p>
+    <p class="form_title">Time period</p>
+    <div>
+        <p class="input_label">from: </p>
+        <input id="new_analytics-form-input" type="date" name="period_from"/>
+    </div>
+    <div>
+        <p class="input_label">to: </p>
+        <input id="new_analytics-form-input" type="date" name="period_to"/>
+    </div>
 
-    <p class="input_label">Time period</p>
-    <p class="input_label">from: </p>
-    <input id="new_analytics-form-input" type="date" name="period_from"/>
-    <p class="input_label">to: </p>
-    <input id="new_analytics-form-input" type="date" name="period_to"/>
+    <div>
+        <p class="input_label">Sensor</p>
+        <select name="cars" id="cars">
+            <%  sensors.forEach(s => { %>
+                <option value="<%= s._id %>"><%= s.name %></option>
+            <% });%>
+        </select>
+    </div>
 
-    <p class="input_label">Sensor</p>
-    <select name="cars" id="cars">
-        <%  sensors.forEach(s => { %>
-            <option value="<%= s._id %>"><%= s.name %></option>
-        <% });%>
-    </select>
-
-    <p class="input_label">Analytics type</p>
-    <select name="cars" id="cars">
-        <option value="avg">Average</option>
-    </select>
+    <div>
+        <p class="input_label">Analytics type</p>
+        <select name="cars" id="cars">
+            <option value="avg">Average</option>
+        </select>
+    </div>
 
     <input type="submit" value="Create" />
 </form>
@@ -28,9 +34,11 @@
 
     newAnalyticsForm.addEventListener("submit", function(e) {
         e.preventDefault();
+
         const data = new FormData(newAnalyticsForm);
+        
         for (const [name,value] of data) {
-            console.log(name, ":", value)
+            console.log(name, ":", value);
         }
     })
 

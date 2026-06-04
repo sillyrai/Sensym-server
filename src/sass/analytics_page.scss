@@ -1,34 +1,67 @@
 main {
     display: flex;
-    justify-content: center;
-    
-    padding: 8px;
-}
-
-.section {
-    display: flex;
     flex-direction: column;
 
-    padding: 8px;
-
-    max-height: 280px;
     width: 100%;
     height: 100%;
 
-    background-color: var(--surface-1);
+    padding: 20px 16px;
+    gap: 16px;
 
-    overflow: none;
+    overflow: hidden;
 }
 
-.chart {
-    display: block;
+.analytics_action_bar {
+    display: flex;
+    flex-wrap: nowrap;
+
     width: 100%;
-    height: 100%;
-    border: 2px solid var(--border-strong);
+    height: fit-content;
+
+    gap: 12px;
 }
 
-.data-line {
-    fill: none;
-    stroke: green;
-    stroke-width: 2;
+.analytics_filters {
+    flex: 1;
+    display: flex;
+
+    background-color: var(--surface-2);
+    border-radius: 8px;
+}
+
+.new_analytic_form_holder {
+    width: fit-content;
+
+    padding: 6px 12px;
+
+    background-color: var(--surface-2);
+    border-radius: 8px;
+
+    form {
+        display: flex;
+
+        gap: 12px;
+
+        &>div {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form_title {
+            height: 100%;
+        }
+
+        .input_label {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+    }
+}
+
+.analytics-list {
+    flex: 1;
+
+    background-color: var(--surface-2);
+    border-radius: 8px;
 }

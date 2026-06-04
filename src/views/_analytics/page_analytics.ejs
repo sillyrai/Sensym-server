@@ -3,10 +3,16 @@
 <%- include("../Components/_head")%>
 <body>
     <%- include("../Components/navabar") %>
-
-    <div><%- include("./_add_analytics_form") %></div>
+    
     <main>
+        <div class="analytics_action_bar">
+            <div class="analytics_filters"></div>
+            <div class="new_analytic_form_holder"><%- include("./_add_analytics_form") %></div>
+        </div>
+        
+        <div class="analytics-list">
 
+        </div>
     </main>
 </body>
 </html>
