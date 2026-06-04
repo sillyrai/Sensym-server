@@ -1,7 +1,7 @@
 import { Router } from "express";
 
-import SensorSchema from "../Lib/mongoDB_models/Sensor_Schema";
-import SensorDataSchema from "../Lib/mongoDB_models/SensorData_Schema";
+import SensorSchema from "../lib/mongoDB_models/Sensor_Schema";
+import SensorDataSchema from "../lib/mongoDB_models/SensorData_Schema";
 
 const router = Router();
 

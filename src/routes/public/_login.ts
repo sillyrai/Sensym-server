@@ -2,7 +2,7 @@ import { Router } from "express";
 import jwt from 'jsonwebtoken';
 import bcrypt from "bcrypt";
 
-import UserSchema from '../../Lib/mongoDB_models/User_Schema';
+import UserSchema from '../../lib/mongoDB_models/User_Schema';
 
 const router = Router();
 

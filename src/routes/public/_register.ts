@@ -1,9 +1,9 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
 
-import UserSchema from '../../Lib/mongoDB_models/User_Schema';
-import AuthTokenSchema from '../../Lib/mongoDB_models/OneTimeRegistration_Schema';
-import { validateShortText, validateStrongPassword } from '../../Lib/validation';
+import UserSchema from '../../lib/mongoDB_models/User_Schema';
+import AuthTokenSchema from '../../lib/mongoDB_models/OneTimeRegistration_Schema';
+import { validateShortText, validateStrongPassword } from '../../lib/validation';
 
 const router = Router();
 

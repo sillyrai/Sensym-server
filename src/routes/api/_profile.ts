@@ -1,11 +1,11 @@
 import {Router} from 'express';
 import bcrypt from "bcrypt";
 
-import text from '../../Lib/TextStuff';
-import UserSchema from '../../Lib/mongoDB_models/User_Schema';
-import IsAuthenticated from '../../Lib/backend_auth';
-import OneTimeRegistrationSchema from '../../Lib/mongoDB_models/OneTimeRegistration_Schema';
-import { validateShortText, validateStrongPassword } from '../../Lib/validation';
+import text from '../../lib/TextStuff';
+import UserSchema from '../../lib/mongoDB_models/User_Schema';
+import IsAuthenticated from '../../lib/backend_auth';
+import OneTimeRegistrationSchema from '../../lib/mongoDB_models/OneTimeRegistration_Schema';
+import { validateShortText, validateStrongPassword } from '../../lib/validation';
 
 const router = Router();
 

@@ -2,6 +2,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= (typeof title !== 'undefined') ? title : "Sensym" %></title>
+    <script>
+        (() => {
+            const themeStorageKey = "sensym-theme";
+            const storedTheme = localStorage.getItem(themeStorageKey);
+            const preferredTheme = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+            const currentTheme = storedTheme === "light" || storedTheme === "dark" ? storedTheme : preferredTheme;
+
+            document.documentElement.dataset.theme = currentTheme;
+
+            window.toggleSensymTheme = () => {
+                const nextTheme = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+                document.documentElement.dataset.theme = nextTheme;
+                localStorage.setItem(themeStorageKey, nextTheme);
+
+                const themeButton = document.querySelector("[data-theme-toggle]");
+                if (themeButton) {
+                    themeButton.textContent = nextTheme === "light" ? "Dark mode" : "Light mode";
+                }
+            };
+
+            window.addEventListener("DOMContentLoaded", () => {
+                const themeButton = document.querySelector("[data-theme-toggle]");
+                if (themeButton) {
+                    themeButton.textContent = currentTheme === "light" ? "Dark mode" : "Light mode";
+                }
+            });
+        })();
+    </script>
     
     <link rel="stylesheet" href="/css/global.css">
     <% if (typeof styles !== 'undefined' && styles.length) { %>

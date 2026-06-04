@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import UserSchema from '../Lib/mongoDB_models/User_Schema';
+import UserSchema from '../lib/mongoDB_models/User_Schema';
 
 const router = Router();
 

@@ -1,9 +1,9 @@
 import { Router } from "express";
-import IsAuthenticated from "../../Lib/backend_auth";
-import TextStuff from "../../Lib/TextStuff";
-import SensorSchema from "../../Lib/mongoDB_models/Sensor_Schema";
-import SensorDataSchema from "../../Lib/mongoDB_models/SensorData_Schema";
-import { validateShortText } from "../../Lib/validation";
+import IsAuthenticated from "../../lib/backend_auth";
+import TextStuff from "../../lib/TextStuff";
+import SensorSchema from "../../lib/mongoDB_models/Sensor_Schema";
+import SensorDataSchema from "../../lib/mongoDB_models/SensorData_Schema";
+import { validateShortText } from "../../lib/validation";
 let router = Router();
 
 // Create a new sensor internally

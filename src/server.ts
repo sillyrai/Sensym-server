@@ -7,24 +7,24 @@ import { Server } from 'socket.io';
 
 // ------------------------- Module import -------------------------
 
-import connectDB from "./Lib/database";
-import { dateLog } from "./Lib/logging_utils";
-import auth from "./Lib/frontend_auth";
-import RequestLogger from "./Lib/request_logging";
-import URLNormalize from "./Lib/URLNormalize";
+import connectDB from "./lib/database";
+import { dateLog } from "./lib/logging_utils";
+import auth from "./lib/frontend_auth";
+import RequestLogger from "./lib/request_logging";
+import URLNormalize from "./lib/URLNormalize";
 
 // ------------------------- Route import -------------------------
 
-import public_route from "./Routes/public";
+import public_route from "./routes/public";
 
-import sensor_route from "./Routes/sensors";
-import analytics_route from "./Routes/analytics";
-import users_route from "./Routes/users";
-import profile_route from "./Routes/profile";
+import sensor_route from "./routes/sensors";
+import analytics_route from "./routes/analytics";
+import users_route from "./routes/users";
+import profile_route from "./routes/profile";
 
-import admin_route from "./Routes/admin";
+import admin_route from "./routes/admin";
 
-import api_route from "./Routes/api";
+import api_route from "./routes/api";
 
 // ------------------------- App setup -------------------------
 
@@ -37,10 +37,10 @@ const io = new Server(httpServer);    // Tie Socket.IO to the HTTP server
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.static("src/Public"));
+app.use(express.static("src/public"));
 
 app.set('view engine', 'ejs');
-app.set('views', 'src/Views'); // pls pls just do it
+app.set('views', 'src/views'); // pls pls just do it
 app.set('socketio', io); // holy moly
 
 // ------------------------- App middleware -------------------------
@@ -92,8 +92,8 @@ app.use((err: unknown, req: express.Request, res: express.Response, next: expres
     });
 });
 
-import User_Schema from "./Lib/mongoDB_models/User_Schema";
-import OneTimeRegistration_Schema from "./Lib/mongoDB_models/OneTimeRegistration_Schema";
+import User_Schema from "./lib/mongoDB_models/User_Schema";
+import OneTimeRegistration_Schema from "./lib/mongoDB_models/OneTimeRegistration_Schema";
 
 async function handleNoAccounts() { // Handle when there are no accounts in the database (first time running)
     try {
