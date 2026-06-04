@@ -3,5 +3,20 @@
 <%- include("Components/_head")%>
 <body>
     <%- include('./Components/navabar') %>
+    
+    <div class="title-strip">
+        <h1>Dashboard</h1>
+    </div>
+
+    <main class="dashboard">
+        <div class="widget">
+            <p class="label">Sensors</p>
+            <p class="value"><%= sensor_count %></p>
+        </div>
+        <div class="widget">
+            <p class="label">Users</p>
+            <p class="value"><%= user_count %></p>
+        </div>
+    </main>
 </body>
 </html>

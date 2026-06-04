@@ -108,12 +108,12 @@ nav > a.profile-button .profile-icon {
 }
 
 :root[data-theme=light] {
-  --page-bg: #f4f6f8;
+  --page-bg: #ddd;
   --page-fg: #1b1b1b;
-  --surface-1: #ffffff;
-  --surface-2: #f7f7f7;
-  --surface-3: #ececec;
-  --surface-4: #dedede;
+  --surface-1: #bbb;
+  --surface-2: #aaa;
+  --surface-3: #ccc;
+  --surface-4: #888;
   --surface-5: #b7b7b7;
   --surface-6: #d2d2d2;
   --surface-7: #f0f0f0;

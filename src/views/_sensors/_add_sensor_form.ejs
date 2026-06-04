@@ -1,0 +1,49 @@
+<button id="add_sensors_btn"><img src="/graphics/plus.svg"></button>
+
+<div id="add_sensor_window" class="hidden-window">
+    <form id="add-sensor-form" method="POST">
+        <p class="form_title">Add a new sensor</p>
+
+        <p class="input_label">Name</p>
+        <input id="add-sensor-form-input" type="text" name="sensor_name" placeholder="..."/>
+
+        <input type="submit" value="Add" />
+    </form>
+</div>
+
+<script>
+    const addSensorButton = document.getElementById("add_sensors_btn");
+    const addSensorWindow = document.getElementById("add_sensor_window");
+
+    addSensorButton.addEventListener("click", (e) => {
+        addSensorWindow.style.display = "flex";
+    });
+
+    addSensorWindow.addEventListener("click", (e) => {
+        if (e.target === addSensorWindow) { addSensorWindow.style.display = "none"; }
+    });
+
+    const addSensorForm = document.getElementById("add-sensor-form");
+
+    const addSensorNameInput = document.getElementById("add-sensor-form-input");
+
+
+    // 1. Added 'e' parameter and e.preventDefault()
+    addSensorForm.addEventListener("submit", async (e) => {
+        e.preventDefault(); 
+
+        const response = await fetch(`/api/sensors/new`, {
+            method: 'POST',
+            headers: {
+                'Content-type' :'application/json',
+                'authorization': `Bearer <%= auth_token %>`
+            },
+            body: JSON.stringify({
+                "sensor_name": addSensorNameInput.value,
+            })
+        })
+        if (!response.ok) { console.log(response.json()); }
+        
+        addSensorWindow.style.display = "none";
+    });
+</script>

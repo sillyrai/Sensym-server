@@ -1,6 +1,6 @@
-function validateShortText(value: string): string | null {
+function validateShortText(value: string): boolean {
     if (value.length > 20) {
-        return 'Value must be 20 characters or less and can only contain letters, numbers, and underscores';
+        return false;
     }
 
     for (let i = 0; i < value.length; i++) {
@@ -11,10 +11,10 @@ function validateShortText(value: string): string | null {
         if (code >= 97 && code <= 122) { continue; }
         if (code === 95) { continue; }
 
-        return 'Value must be 20 characters or less and can only contain letters, numbers, and underscores';
+        return false;
     }
 
-    return null;
+    return true;
 }
 
 function validateStrongPassword(value: string): string | null {

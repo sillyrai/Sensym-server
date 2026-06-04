@@ -13,30 +13,16 @@ router.get("/", async (req, res) => {
             styles: ["sensors_page.css"],
             title: "Sensym | Sensors",
 
-            sensors: data
+            sensors: data,
+
+            role: res.locals.userData.role,
+            auth_token: req.cookies.auth_token || "",
         });
     } catch (err) {
         console.error('Sensors list render failed:', err);
         return res.status(500).render('error', {
             styles: ["error.css"],
             message: 'Failed to load sensors'
-        });
-    }
-})
-
-//-// This '/add' route MUST BE before '/:sensor_id' <-- IMPORTANT IMPORTANT //-//
-router.get("/add", async (req, res) => {    
-    try {
-        res.render('_sensors/page_add_sensor', {
-            styles: ["page_add_sensor.css"],
-            title: "Sensym | Add Sensor",
-            authToken: req.cookies.auth_token || "",
-        });
-    } catch (err) {
-        console.error('Add sensor page render failed:', err);
-        return res.status(500).render('error', {
-            styles: ["error.css"],
-            message: 'Failed to load add sensor page'
         });
     }
 })

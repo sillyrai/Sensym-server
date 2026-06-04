@@ -28,7 +28,7 @@ RUN npm ci
 COPY . .
 
 # Overwrite the Public/css folder with the compiled CSS from the builder stage
-COPY --from=builder /usr/src/app/src/Public/css ./src/Public/css
+COPY --from=builder /usr/src/app/src/public/css ./src/public/css
 
 # Use non-root user for security
 USER node

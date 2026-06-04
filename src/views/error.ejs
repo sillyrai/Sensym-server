@@ -6,7 +6,7 @@
     <div class="main">
         <div class="info">
             <h1>ERROR_</h1>
-            <h2>Type<span class="type"><%= type %></span></h2>
+            <h2>Type<span class="type"><%= (typeof type !== 'undefined') ? type : "unknown"%></span></h2>
             <p class="msg"><%= message %></p>
             <a href="/"><img class="home" src="/graphics/house.svg"></a>
         </div>

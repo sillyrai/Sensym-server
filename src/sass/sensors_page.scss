@@ -1,3 +1,5 @@
+@use "add_sensor_form";
+
 main {
     display: flex;
     flex-direction: column;
@@ -10,34 +12,6 @@ main {
     gap: 12px;
 
     overflow: hidden;
-}
-
-.add_sensors_btn {
-    position: absolute;
-    right: 16px;
-    bottom: 16px;
-
-    width: 48px;
-    aspect-ratio: 1;
-
-    padding: 8px;
-
-    background-color: var(--surface-7);
-    border-radius: 16px;
-
-    overflow: hidden;
-    transition: all 0.2s ease-in-out;
-
-    &:hover {
-        background-color: var(--surface-hover);
-        box-shadow: 0 0 12px -6px var(--shadow-dark);
-        border-radius: 24px;
-    }
-
-    img {
-        width: 100%;
-        object-fit: contain;
-    }
 }
 
 .filters {

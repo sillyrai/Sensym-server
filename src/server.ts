@@ -26,6 +26,11 @@ import admin_route from "./routes/admin";
 
 import api_route from "./routes/api";
 
+// ------------------------- MongoDB Schema import -------------------------
+
+import SensorSchema from "./lib/mongoDB_models/Sensor_Schema";
+import UserSchema from "./lib/mongoDB_models/User_Schema";
+
 // ------------------------- App setup -------------------------
 
 dotenv.config({quiet: true});
@@ -66,9 +71,15 @@ io.on('connection', (socket) => {
 
 app.use('/', public_route);
 
-app.get('/', auth, (req, res) => {
+app.get('/', auth, async (req, res) => {
+    const sensorCount = await SensorSchema.countDocuments({}).lean();
+    const userCount = await UserSchema.countDocuments({}).lean();
+
     res.render('index', {
-        styles: ["home_page.css"]
+        styles: ["home_page.css"],
+
+        sensor_count: sensorCount,
+        user_count: userCount
     });
 });
 

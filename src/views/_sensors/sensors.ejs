@@ -3,7 +3,6 @@
 <%- include("../Components/_head")%>
 <body>
     <%- include('../Components/navabar') %>
-    <a class="add_sensors_btn" href="/sensors/add"><img src="/graphics/plus.svg"></a>
     
     <main>
         <div class="filters">
@@ -22,5 +21,9 @@
         <% } %>
         </div></div>
     </main>
+
+    <% if (role === "ADMIN") { %>
+    <%- include("./_add_sensor_form") %>
+    <% } %>
 </body>
 </html>

@@ -43,7 +43,7 @@ router.post('/', async (req, res) => {
 
         const authTokenCheck = await AuthTokenSchema
             .findOne({token: body.registration_code})
-            .lean()
+            .lean();
 
         if (!authTokenCheck) {
             return res.status(400).send({
@@ -51,8 +51,8 @@ router.post('/', async (req, res) => {
             });
         }
 
-        let username = body.user
-        let password = body.pass
+        const username = body.user
+        const password = body.pass
 
         if(!username || !password) {
             return res.status(400).send({
@@ -90,7 +90,8 @@ router.post('/', async (req, res) => {
 
         const saveResult = await UserSchema.insertOne({
             username: username,
-            password: hashed_password
+            password: hashed_password,
+            userType: authTokenCheck.accountType
         });
 
         if(!saveResult) {

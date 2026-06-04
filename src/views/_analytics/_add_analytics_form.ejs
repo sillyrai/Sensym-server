@@ -1,0 +1,73 @@
+<form id="new-analytics-form">
+    <p class="form_title">New analytics</p>
+
+    <p class="input_label">Time period</p>
+    <p class="input_label">from: </p>
+    <input id="new_analytics-form-input" type="date" name="period_from"/>
+    <p class="input_label">to: </p>
+    <input id="new_analytics-form-input" type="date" name="period_to"/>
+
+    <p class="input_label">Sensor</p>
+    <select name="cars" id="cars">
+        <%  sensors.forEach(s => { %>
+            <option value="<%= s._id %>"><%= s.name %></option>
+        <% });%>
+    </select>
+
+    <p class="input_label">Analytics type</p>
+    <select name="cars" id="cars">
+        <option value="avg">Average</option>
+    </select>
+
+    <input type="submit" value="Create" />
+</form>
+
+<script>
+
+    const newAnalyticsForm = document.getElementById("new-analytics-form");
+
+    newAnalyticsForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+        const data = new FormData(newAnalyticsForm);
+        for (const [name,value] of data) {
+            console.log(name, ":", value)
+        }
+    })
+
+    /*
+    const addSensorButton = document.getElementById("add_sensors_btn");
+    const addSensorWindow = document.getElementById("add_sensor_window");
+
+    addSensorButton.addEventListener("click", (e) => {
+        addSensorWindow.style.display = "flex";
+    });
+
+    addSensorWindow.addEventListener("click", (e) => {
+        if (e.target === addSensorWindow) { addSensorWindow.style.display = "none"; }
+    });
+
+    const addSensorForm = document.getElementById("add-sensor-form");
+
+    const addSensorNameInput = document.getElementById("add-sensor-form-input");
+
+
+    // 1. Added 'e' parameter and e.preventDefault()
+    addSensorForm.addEventListener("submit", async (e) => {
+        e.preventDefault(); 
+
+        const response = await fetch(`/api/sensors/new`, {
+            method: 'POST',
+            headers: {
+                'Content-type' :'application/json',
+                'authorization': `Bearer <%= auth_token %>`
+            },
+            body: JSON.stringify({
+                "sensor_name": addSensorNameInput.value,
+            })
+        })
+        if (!response.ok) { console.log(response.json()); }
+        
+        addSensorWindow.style.display = "none";
+    });
+    */
+</script>

@@ -4,13 +4,15 @@ import TextStuff from "../../lib/TextStuff";
 import SensorSchema from "../../lib/mongoDB_models/Sensor_Schema";
 import SensorDataSchema from "../../lib/mongoDB_models/SensorData_Schema";
 import { validateShortText } from "../../lib/validation";
+
 let router = Router();
 
 // Create a new sensor internally
 // It's token can be used to post data to the server from the actual sensor
-router.post('/newSensor', IsAuthenticated, async (req, res) => {
+router.post('/new', IsAuthenticated, async (req, res) => {
     try {
         if(res.locals.user.userType !== 'ADMIN') {
+            console.log("gay")
             return res.status(403).json({ error: 'Insufficient permissions' });
         }
 
@@ -21,16 +23,20 @@ router.post('/newSensor', IsAuthenticated, async (req, res) => {
             return res.status(400).json({ error: 'Sensor name is required' });
         }
 
-        if (validateShortText(sensorName)) {
+        /*
+        if (!validateShortText(sensorName)) {
             return res.status(400).json({ error: 'Sensor name must be 20 characters or less and can only contain letters, numbers, and underscores' });
         }
+        */
 
         let deviceToken = TextStuff.rndStr(16);
         await SensorSchema.insertOne({
             token: deviceToken,
             name: sensorName
         })
+
         return res.redirect('/sensors');
+    
     } catch (err) {
         console.error('Create sensor request failed:', err);
         return res.status(500).json({ error: 'Failed to create sensor' });

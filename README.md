@@ -3,12 +3,12 @@
 ## Server
 ### Server .env variables
 ```
-MONGODB_URI = "mongodb://<USER>:<PASS>@<HOST+PORT>/<DATABASE>?authSource=<DATABASE>"
+MONGODB_URI="mongodb://<USER>:<PASS>@<HOST+PORT>/<DATABASE>?authSource=<DATABASE>"
 
-PORT = 3000
-NODE_ENV = "development" # 'deployment'
+PORT=3000
+NODE_ENV="development" # 'deployment'
 
-JWT_SECRET = "<secret_string>"
+JWT_SECRET="<secret_string>"
 ```
 
 ### Server endpoint structure
@@ -33,4 +33,3 @@ JWT_SECRET = "<secret_string>"
 		- `DELETE` `/:sensorToken` Deletes the device from the database
 		- `POST`   `/:sensorToken/heartbeat` Sends a heatbeat to the server from the device
 	- `GET` `/serverData` Returns information about the server
-	- 
