@@ -59,19 +59,20 @@ router.post('/', async (req, res) => {
                 message: 'Username and/or password are required'
             });
         }
-
+        /* TODO: bit broken, needs to be fixed.
         if (validateShortText(username)) {
             return res.status(400).send({
                 message: 'Username must be 20 characters or less and can only contain letters, numbers, and underscores'
             });
         }
+        
 
         if (validateShortText(body.registration_code)) {
             return res.status(400).send({
                 message: 'Registration code must be 20 characters or less and can only contain letters, numbers, and underscores'
             });
         }
-
+        */
         if (validateStrongPassword(password)) {
             return res.status(400).send({
                 message: 'Password must be at least 8 characters long, with at least 1 symbol, 1 uppercase character, 2 numbers, and 1 lowercase character'

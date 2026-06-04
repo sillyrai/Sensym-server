@@ -2,16 +2,16 @@
     <p class="form_title">Time period</p>
     <div>
         <p class="input_label">from: </p>
-        <input id="new_analytics-form-input" type="date" name="period_from"/>
+        <input id="period_from" type="datetime-local" name="period_from"/>
     </div>
     <div>
         <p class="input_label">to: </p>
-        <input id="new_analytics-form-input" type="date" name="period_to"/>
+        <input id="period_to" type="datetime-local" name="period_to"/>
     </div>
 
     <div>
         <p class="input_label">Sensor</p>
-        <select name="cars" id="cars">
+        <select name="sensor" id="input_sensor">
             <%  sensors.forEach(s => { %>
                 <option value="<%= s._id %>"><%= s.name %></option>
             <% });%>
@@ -20,7 +20,7 @@
 
     <div>
         <p class="input_label">Analytics type</p>
-        <select name="cars" id="cars">
+        <select name="analytics_type" id="input_analytics_type">
             <option value="avg">Average</option>
         </select>
     </div>
@@ -29,53 +29,143 @@
 </form>
 
 <script>
-
     const newAnalyticsForm = document.getElementById("new-analytics-form");
+    const fromInput = document.getElementById("period_from");
+    const toInput = document.getElementById("period_to");
 
-    newAnalyticsForm.addEventListener("submit", function(e) {
-        e.preventDefault();
+    // Helper to format date for datetime-local
+    function formatDateTime(date) {
+        // YYYY-MM-DDThh:mm
+        return new Date(date.getTime() - (date.getTimezoneOffset() * 60000))
+            .toISOString()
+            .slice(0, 16);
+    }
 
-        const data = new FormData(newAnalyticsForm);
+    // Set times
+    const now = new Date();
+    const hourAgo = new Date(now.getTime() - (60 * 60 * 1000));
+
+    fromInput.value = formatDateTime(hourAgo);
+    toInput.value = formatDateTime(now);
+
+newAnalyticsForm.addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    // const sensorId = document.getElementById('input_sensor').value;
+    const endpoint = `http://localhost:3000/api/sensors/2ada252b4e443965`;
+
+    try {
+        const response = await fetch(endpoint);
+        const result = await response.json();
+        const records = result.data;
+
+        // grab the container from page_analytics.ejs and clear it
+        const listContainer = document.querySelector('.analytics-list');
+        listContainer.innerHTML = '';
+
+        // 1. extract timestamps for the X-axis
+        const labels = records.map(r => {
+            const date = new Date(r.createdAt);
+            return date.toLocaleTimeString();
+        });
+
+        // 2. group the nested data by metric name (temp vs hum)
+        const datasetsMap = {};
+        records.forEach(record => {
+            record.data.forEach(metric => {
+                if (!datasetsMap[metric.name]) {
+                    datasetsMap[metric.name] = { data: [] };
+                }
+                datasetsMap[metric.name].data.push(parseFloat(metric.value));
+            });
+        });
+
+        // 3. set up the datasets for Chart.js and calculate averages
+        const chartDatasets = [];
+        const averagesList = [];
+
+        const colors = ['rgb(46, 161, 80)', 'rgb(54, 162, 235)']; 
+        let colorIndex = 0;
+
+        for (const [metricName, metricData] of Object.entries(datasetsMap)) {
+            chartDatasets.push({
+                label: metricName,
+                data: metricData.data,
+                borderColor: colors[colorIndex % colors.length],
+                tension: 0.3,
+                borderWidth: 2,
+                pointRadius: 0 
+            });
+            colorIndex++;
+
+            const sum = metricData.data.reduce((a, b) => a + b, 0);
+            const avg = (sum / metricData.data.length).toFixed(2);
+            averagesList.push(`${metricName}: ${avg}`);
+        }       
+
+        // 4. create the label for the analytics type with the new drip
+        const analyticsSelect = document.getElementById('input_analytics_type');
+        const selectedTypeName = analyticsSelect.options[analyticsSelect.selectedIndex].text;
         
-        for (const [name,value] of data) {
-            console.log(name, ":", value);
-        }
-    })
+        const statsContainer = document.createElement('div');
+        statsContainer.style.display = 'flex';
+        statsContainer.style.alignItems = 'center';
+        statsContainer.style.gap = '15px';
+        statsContainer.style.marginBottom = '20px';
+        statsContainer.style.flexWrap = 'wrap'; 
 
-    /*
-    const addSensorButton = document.getElementById("add_sensors_btn");
-    const addSensorWindow = document.getElementById("add_sensor_window");
+        const titleText = document.createElement('h3');
+        titleText.innerText = `${selectedTypeName}:`;
+        titleText.style.margin = '0';
+        titleText.style.color = '#555'; 
+        statsContainer.appendChild(titleText);
 
-    addSensorButton.addEventListener("click", (e) => {
-        addSensorWindow.style.display = "flex";
-    });
+        averagesList.forEach(stat => {
+            const statBadge = document.createElement('div');
+            statBadge.className = 'analytics-badge';
+            
+            // keeping the rest of the drip inline
+            statBadge.style.border = '1px solid rgb(46, 161, 80)'; 
+            statBadge.style.borderRadius = '6px';
+            statBadge.style.padding = '8px 12px';
+            statBadge.style.fontWeight = 'bold';
+            statBadge.style.color = 'rgb(46, 121, 80)'; 
+            statBadge.style.boxShadow = '0 4px 6px rgba(0,0,0,0.3)';
+            
+            statBadge.innerText = stat;
+            statsContainer.appendChild(statBadge);
+        });
 
-    addSensorWindow.addEventListener("click", (e) => {
-        if (e.target === addSensorWindow) { addSensorWindow.style.display = "none"; }
-    });
+        listContainer.appendChild(statsContainer);
 
-    const addSensorForm = document.getElementById("add-sensor-form");
+        // 5. create a wrapper for the canvas to control the size
+        const chartWrapper = document.createElement('div');
+        
+        // set it to relative and give it a max height so it stays contained
+        chartWrapper.style.position = 'relative';
+        chartWrapper.style.height = '400px';
+        chartWrapper.style.width = '100%';
 
-    const addSensorNameInput = document.getElementById("add-sensor-form-input");
+        const canvas = document.createElement('canvas');
+        canvas.id = 'sensorChart';
+        
+        chartWrapper.appendChild(canvas);
+        listContainer.appendChild(chartWrapper);
 
-
-    // 1. Added 'e' parameter and e.preventDefault()
-    addSensorForm.addEventListener("submit", async (e) => {
-        e.preventDefault(); 
-
-        const response = await fetch(`/api/sensors/new`, {
-            method: 'POST',
-            headers: {
-                'Content-type' :'application/json',
-                'authorization': `Bearer <%= auth_token %>`
+        new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: labels, 
+                datasets: chartDatasets
             },
-            body: JSON.stringify({
-                "sensor_name": addSensorNameInput.value,
-            })
-        })
-        if (!response.ok) { console.log(response.json()); }
-        
-        addSensorWindow.style.display = "none";
-    });
-    */
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+    } catch (error) {
+        console.error("STUFF:", error);
+    }
+});
 </script>

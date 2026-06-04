@@ -60,20 +60,6 @@ router.post('/:sensorToken', async (req, res)=>{
         // check if sensor token even exists
         const sensor = await SensorSchema.findOne({ token: sensorToken });
         if(!sensor){ return res.status(404).json({ message: "Sensor not found" }); }
-
-        // process sensor data
-        /* << OLD >> *//*
-        SensorDataSchema.insertOne({
-            token: req.params.sensorToken,
-            dataType: req.body.type,
-            value: req.body.value
-
-        }).then(()=>{
-            return res.status(200).json({message: 'Data recorded successfully'});
-        }).catch((err)=>{
-            return res.status(500).json({message: 'Failed to record data', details: err});
-        })
-        */
         const newData = (req.body as SensorDataItem[] || []).map((item:SensorDataItem) => ({
             type: item.type,
             value: item.value,
@@ -117,6 +103,15 @@ router.delete('/:sensorToken', IsAuthenticated, async (req, res) => {
     }
 });
 
+router.get('/:sensorToken', async (req, res) => {
+    let sensorToken = req.params.sensorToken;
+    const sensor = await SensorSchema.findOne({ token: sensorToken });
+    if(!sensor){ return res.status(404).json({ message: "Sensor not found" }); }
+
+    let data = await SensorDataSchema.find({ sensor: sensor.id }).lean();
+
+    res.send({ sensor, data })
+})
 /*
 router.post('/:sensorToken/heartbeat', async (req, res) => {
     let sensorToken = req.params.sensorToken;
