@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const sensorId = document.getElementById('input_sensor').value;
         
         // FIXED: Injecting the variable into the endpoint
-        const endpoint = `http://localhost:3000/api/sensors/${sensorId}`;
+        const endpoint = `/api/sensors/${sensorId}`;
 
         try {
             const response = await fetch(endpoint);
