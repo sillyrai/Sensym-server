@@ -10,12 +10,14 @@
     </div>
 
     <div>
+    <div>
         <p class="input_label">Sensor</p>
         <select name="sensor" id="input_sensor">
             <%  sensors.forEach(s => { %>
-                <option value="<%= s._id %>"><%= s.name %></option>
+                <option value="<%= s.token %>"><%= s.name %></option>
             <% });%>
         </select>
+    </div>
     </div>
 
     <div>
@@ -29,6 +31,8 @@
 </form>
 
 <script>
+// Waiting for the page to finish loading before running anything!
+document.addEventListener("DOMContentLoaded", () => {
     const newAnalyticsForm = document.getElementById("new-analytics-form");
     const fromInput = document.getElementById("period_from");
     const toInput = document.getElementById("period_to");
@@ -48,124 +52,138 @@
     fromInput.value = formatDateTime(hourAgo);
     toInput.value = formatDateTime(now);
 
-newAnalyticsForm.addEventListener("submit", async function(e) {
-    e.preventDefault();
+    newAnalyticsForm.addEventListener("submit", async function(e) {
+        e.preventDefault();
 
-    // const sensorId = document.getElementById('input_sensor').value;
-    const endpoint = `http://localhost:3000/api/sensors/2ada252b4e443965`;
-
-    try {
-        const response = await fetch(endpoint);
-        const result = await response.json();
-        const records = result.data;
-
-        // grab the container from page_analytics.ejs and clear it
-        const listContainer = document.querySelector('.analytics-list');
-        listContainer.innerHTML = '';
-
-        // 1. extract timestamps for the X-axis
-        const labels = records.map(r => {
-            const date = new Date(r.createdAt);
-            return date.toLocaleTimeString();
-        });
-
-        // 2. group the nested data by metric name (temp vs hum)
-        const datasetsMap = {};
-        records.forEach(record => {
-            record.data.forEach(metric => {
-                if (!datasetsMap[metric.name]) {
-                    datasetsMap[metric.name] = { data: [] };
-                }
-                datasetsMap[metric.name].data.push(parseFloat(metric.value));
-            });
-        });
-
-        // 3. set up the datasets for Chart.js and calculate averages
-        const chartDatasets = [];
-        const averagesList = [];
-
-        const colors = ['rgb(46, 161, 80)', 'rgb(54, 162, 235)']; 
-        let colorIndex = 0;
-
-        for (const [metricName, metricData] of Object.entries(datasetsMap)) {
-            chartDatasets.push({
-                label: metricName,
-                data: metricData.data,
-                borderColor: colors[colorIndex % colors.length],
-                tension: 0.3,
-                borderWidth: 2,
-                pointRadius: 0 
-            });
-            colorIndex++;
-
-            const sum = metricData.data.reduce((a, b) => a + b, 0);
-            const avg = (sum / metricData.data.length).toFixed(2);
-            averagesList.push(`${metricName}: ${avg}`);
-        }       
-
-        // 4. create the label for the analytics type with the new drip
-        const analyticsSelect = document.getElementById('input_analytics_type');
-        const selectedTypeName = analyticsSelect.options[analyticsSelect.selectedIndex].text;
+        // FIXED: Grabbing the actual ID from the dropdown
+        const sensorId = document.getElementById('input_sensor').value;
         
-        const statsContainer = document.createElement('div');
-        statsContainer.style.display = 'flex';
-        statsContainer.style.alignItems = 'center';
-        statsContainer.style.gap = '15px';
-        statsContainer.style.marginBottom = '20px';
-        statsContainer.style.flexWrap = 'wrap'; 
+        // FIXED: Injecting the variable into the endpoint
+        const endpoint = `http://localhost:3000/api/sensors/${sensorId}`;
 
-        const titleText = document.createElement('h3');
-        titleText.innerText = `${selectedTypeName}:`;
-        titleText.style.margin = '0';
-        titleText.style.color = '#555'; 
-        statsContainer.appendChild(titleText);
-
-        averagesList.forEach(stat => {
-            const statBadge = document.createElement('div');
-            statBadge.className = 'analytics-badge';
+        try {
+            const response = await fetch(endpoint);
             
-            // keeping the rest of the drip inline
-            statBadge.style.border = '1px solid rgb(46, 161, 80)'; 
-            statBadge.style.borderRadius = '6px';
-            statBadge.style.padding = '8px 12px';
-            statBadge.style.fontWeight = 'bold';
-            statBadge.style.color = 'rgb(46, 121, 80)'; 
-            statBadge.style.boxShadow = '0 4px 6px rgba(0,0,0,0.3)';
-            
-            statBadge.innerText = stat;
-            statsContainer.appendChild(statBadge);
-        });
-
-        listContainer.appendChild(statsContainer);
-
-        // 5. create a wrapper for the canvas to control the size
-        const chartWrapper = document.createElement('div');
-        
-        // set it to relative and give it a max height so it stays contained
-        chartWrapper.style.position = 'relative';
-        chartWrapper.style.height = '400px';
-        chartWrapper.style.width = '100%';
-
-        const canvas = document.createElement('canvas');
-        canvas.id = 'sensorChart';
-        
-        chartWrapper.appendChild(canvas);
-        listContainer.appendChild(chartWrapper);
-
-        new Chart(canvas, {
-            type: 'line',
-            data: {
-                labels: labels, 
-                datasets: chartDatasets
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
+            // Add this safety check!
+            if (!response.ok) {
+                throw new Error(`Server returned a ${response.status} error`);
             }
-        });
 
-    } catch (error) {
-        console.error("STUFF:", error);
-    }
+            const result = await response.json();
+            const records = result.data;
+            
+            if (!records) {
+                throw new Error("No data array found in the response");
+            }
+
+            // grab the container from page_analytics.ejs and clear it
+            const listContainer = document.querySelector('.analytics-list');
+            listContainer.innerHTML = '';
+
+            // 1. extract timestamps for the X-axis
+            const labels = records.map(r => {
+                const date = new Date(r.createdAt);
+                return date.toLocaleTimeString();
+            });
+
+            // 2. group the nested data by metric name (temp vs hum)
+            const datasetsMap = {};
+            records.forEach(record => {
+                record.data.forEach(metric => {
+                    if (!datasetsMap[metric.name]) {
+                        datasetsMap[metric.name] = { data: [] };
+                    }
+                    datasetsMap[metric.name].data.push(parseFloat(metric.value));
+                });
+            });
+
+            // 3. set up the datasets for Chart.js and calculate averages
+            const chartDatasets = [];
+            const averagesList = [];
+
+            const colors = ['rgb(46, 161, 80)', 'rgb(54, 162, 235)']; 
+            let colorIndex = 0;
+
+            for (const [metricName, metricData] of Object.entries(datasetsMap)) {
+                chartDatasets.push({
+                    label: metricName,
+                    data: metricData.data,
+                    borderColor: colors[colorIndex % colors.length],
+                    tension: 0.3,
+                    borderWidth: 2,
+                    pointRadius: 0 
+                });
+                colorIndex++;
+
+                const sum = metricData.data.reduce((a, b) => a + b, 0);
+                const avg = (sum / metricData.data.length).toFixed(2);
+                averagesList.push(`${metricName}: ${avg}`);
+            }       
+
+            // 4. create the label for the analytics type with the new drip
+            const analyticsSelect = document.getElementById('input_analytics_type');
+            const selectedTypeName = analyticsSelect.options[analyticsSelect.selectedIndex].text;
+            
+            const statsContainer = document.createElement('div');
+            statsContainer.style.display = 'flex';
+            statsContainer.style.alignItems = 'center';
+            statsContainer.style.gap = '15px';
+            statsContainer.style.marginBottom = '20px';
+            statsContainer.style.flexWrap = 'wrap'; 
+
+            const titleText = document.createElement('h3');
+            titleText.innerText = `${selectedTypeName}:`;
+            titleText.style.margin = '0';
+            titleText.style.color = '#555'; 
+            statsContainer.appendChild(titleText);
+
+            averagesList.forEach(stat => {
+                const statBadge = document.createElement('div');
+                statBadge.className = 'analytics-badge';
+                
+                // keeping the rest of the drip inline
+                statBadge.style.border = '1px solid rgb(46, 161, 80)'; 
+                statBadge.style.borderRadius = '6px';
+                statBadge.style.padding = '8px 12px';
+                statBadge.style.fontWeight = 'bold';
+                statBadge.style.color = 'rgb(46, 121, 80)'; 
+                statBadge.style.boxShadow = '0 4px 6px rgba(0,0,0,0.3)';
+                
+                statBadge.innerText = stat;
+                statsContainer.appendChild(statBadge);
+            });
+
+            listContainer.appendChild(statsContainer);
+
+            // 5. create a wrapper for the canvas to control the size
+            const chartWrapper = document.createElement('div');
+            
+            // set it to relative and give it a max height so it stays contained
+            chartWrapper.style.position = 'relative';
+            chartWrapper.style.height = '400px';
+            chartWrapper.style.width = '100%';
+
+            const canvas = document.createElement('canvas');
+            canvas.id = 'sensorChart';
+            
+            chartWrapper.appendChild(canvas);
+            listContainer.appendChild(chartWrapper);
+
+            new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: labels, 
+                    datasets: chartDatasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+        } catch (error) {
+            console.error("STUFF:", error);
+        }
+    });
 });
 </script>
